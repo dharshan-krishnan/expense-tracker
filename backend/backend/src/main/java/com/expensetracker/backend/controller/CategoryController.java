@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/categories")
+@CrossOrigin("*")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -19,21 +19,11 @@ public class CategoryController {
 
     @PostMapping
     public Category addCategory(@RequestBody Category category) {
-        return categoryService.addCategory(category);
-    }
-
-    @PutMapping("/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        return categoryService.updateCategory(id, category);
+        return categoryService.save(category);
     }
 
     @GetMapping
-    public List<Category> getAll() {
-        return categoryService.getAllCategories();
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public List<Category> getAllCategories() {
+        return categoryService.getAll();
     }
 }
