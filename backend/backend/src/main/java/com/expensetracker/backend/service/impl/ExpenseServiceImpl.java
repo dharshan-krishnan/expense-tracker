@@ -4,6 +4,7 @@ import com.expensetracker.backend.entity.Expense;
 import com.expensetracker.backend.repository.ExpenseRepository;
 import com.expensetracker.backend.service.ExpenseService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -16,30 +17,17 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public Expense addExpense(Expense expense) {
+    public Expense saveExpense(Expense expense) {
         return expenseRepository.save(expense);
-    }
-
-    @Override
-    public Expense updateExpense(Long id, Expense expense) {
-        Expense existing = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
-
-        existing.setTitle(expense.getTitle());
-        existing.setAmount(expense.getAmount());
-        existing.setDate(expense.getDate());
-        existing.setCategory(expense.getCategory());
-
-        return expenseRepository.save(existing);
-    }
-
-    @Override
-    public void deleteExpense(Long id) {
-        expenseRepository.deleteById(id);
     }
 
     @Override
     public List<Expense> getAllExpenses() {
         return expenseRepository.findAll();
+    }
+
+    @Override
+    public void deleteExpense(Long id) {
+        expenseRepository.deleteById(id);
     }
 }
