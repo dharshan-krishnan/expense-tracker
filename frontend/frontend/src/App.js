@@ -7,6 +7,7 @@ import EditCategory from "./components/Category/EditCategory";
 import ExpenseList from "./components/Expense/ExpenseList";
 import AddExpense from "./components/Expense/AddExpense";
 import EditExpense from "./components/Expense/EditExpense";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/categories/add" element={<AddCategory />} />
         <Route path="/categories/edit/:id" element={<EditCategory />} />
         <Route path="/expenses" element={<ExpenseList />} />
+        <Route path="/reports" element={<Reports />} />
 <Route path="/expenses/add" element={<AddExpense />} />
 <Route path="/expenses/edit/:id" element={<EditExpense />} />
 

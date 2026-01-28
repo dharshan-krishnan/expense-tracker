@@ -29,6 +29,7 @@ export default function ExpenseList() {
 
   return (
     <div>
+      <a href="/">⬅ Back to Dashboard</a>
       <h2>Expenses</h2>
 
       <Link to="/expenses/add">

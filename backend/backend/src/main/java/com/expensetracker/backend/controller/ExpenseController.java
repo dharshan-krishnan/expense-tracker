@@ -27,6 +27,12 @@ public class ExpenseController {
         return expenseService.getAllExpenses();
     }
 
+    // ✅ SUMMARY MUST COME FIRST
+    @GetMapping("/summary")
+    public List<Object[]> expenseSummary() {
+        return expenseService.getExpenseSummary();
+    }
+
     @GetMapping("/{id}")
     public Expense getExpenseById(@PathVariable Long id) {
         return expenseService.getExpenseById(id);

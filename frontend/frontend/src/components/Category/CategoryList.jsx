@@ -25,6 +25,7 @@ export default function CategoryList() {
 };
   return (
     <div>
+      <a href="/">⬅ Back to Dashboard</a>
       <h2>Categories</h2>
 
       <Link to="/categories/add">
