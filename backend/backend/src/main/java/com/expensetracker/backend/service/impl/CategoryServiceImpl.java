@@ -25,4 +25,15 @@ public class CategoryServiceImpl implements CategoryService {
     public List<Category> getAll() {
         return categoryRepository.findAll();
     }
+
+    @Override
+    public Category getById(Long id) {
+        return categoryRepository.findById(id)
+                .orElse(null);
+    }
+
+    @Override
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
+    }
 }
