@@ -29,7 +29,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public Expense getExpenseById(Long id) {
         return expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found: " + id));
+                .orElseThrow(() -> new RuntimeException("Expense not found with id: " + id));
     }
 
     @Override
@@ -47,5 +47,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public void deleteExpense(Long id) {
         expenseRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Object[]> getExpenseSummary() {
+        return expenseRepository.expenseSummary();
     }
 }
