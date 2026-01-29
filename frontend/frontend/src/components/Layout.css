@@ -1,0 +1,24 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #f6e9ff, #fff5f7);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-header {
+  padding: 20px;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.page-content {
+  padding: 25px;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
+}

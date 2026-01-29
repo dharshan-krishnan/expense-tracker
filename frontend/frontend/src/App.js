@@ -1,30 +1,49 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import PrivateRoute from "./auth/PrivateRoute";
+
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 import CategoryList from "./components/Category/CategoryList";
 import AddCategory from "./components/Category/AddCategory";
-import Dashboard from "./pages/Dashboard";
 import EditCategory from "./components/Category/EditCategory";
+
 import ExpenseList from "./components/Expense/ExpenseList";
 import AddExpense from "./components/Expense/AddExpense";
 import EditExpense from "./components/Expense/EditExpense";
-import Reports from "./pages/Reports";
 
-function App() {
+import BudgetList from "./components/Budget/BudgetList";
+import AddBudget from "./components/Budget/AddBudget";
+import EditBudget from "./components/Budget/EditBudget";
+
+export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/categories" element={<CategoryList />} />
-        <Route path="/categories/add" element={<AddCategory />} />
-        <Route path="/categories/edit/:id" element={<EditCategory />} />
-        <Route path="/expenses" element={<ExpenseList />} />
-        <Route path="/reports" element={<Reports />} />
-<Route path="/expenses/add" element={<AddExpense />} />
-<Route path="/expenses/edit/:id" element={<EditExpense />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
 
-      </Routes>
-    </BrowserRouter>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Protected routes */}
+          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/categories" element={<PrivateRoute><CategoryList /></PrivateRoute>} />
+          <Route path="/categories/add" element={<PrivateRoute><AddCategory /></PrivateRoute>} />
+          <Route path="/categories/edit/:id" element={<PrivateRoute><EditCategory /></PrivateRoute>} />
+
+          <Route path="/expenses" element={<PrivateRoute><ExpenseList /></PrivateRoute>} />
+          <Route path="/expenses/add" element={<PrivateRoute><AddExpense /></PrivateRoute>} />
+          <Route path="/expenses/edit/:id" element={<PrivateRoute><EditExpense /></PrivateRoute>} />
+
+          <Route path="/budgets" element={<PrivateRoute><BudgetList /></PrivateRoute>} />
+          <Route path="/budgets/add" element={<PrivateRoute><AddBudget /></PrivateRoute>} />
+          <Route path="/budgets/edit/:id" element={<PrivateRoute><EditBudget /></PrivateRoute>} />
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App;

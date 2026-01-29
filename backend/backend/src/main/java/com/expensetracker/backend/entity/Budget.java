@@ -3,46 +3,50 @@ package com.expensetracker.backend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "budget")
+@Table(name = "budgets")
 public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String category;
 
-    private double limitAmount;
+    @Column(nullable = false)
+    private Double amount;
 
-    private double spentAmount;
+    @Column(nullable = false)
+    private String month;
 
-    public Budget() {}
+    @Column(nullable = false)
+    private Integer year;
 
-    public Long getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public String getCategory() {
-        return category;
-    }
+    public Long getId() { return id; }
 
-    public double getLimitAmount() {
-        return limitAmount;
-    }
+    public void setId(Long id) { this.id = id; }
 
-    public double getSpentAmount() {
-        return spentAmount;
-    }
+    public String getCategory() { return category; }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    public void setCategory(String category) { this.category = category; }
 
-    public void setLimitAmount(double limitAmount) {
-        this.limitAmount = limitAmount;
-    }
+    public Double getAmount() { return amount; }
 
-    public void setSpentAmount(double spentAmount) {
-        this.spentAmount = spentAmount;
-    }
+    public void setAmount(Double amount) { this.amount = amount; }
+
+    public String getMonth() { return month; }
+
+    public void setMonth(String month) { this.month = month; }
+
+    public Integer getYear() { return year; }
+
+    public void setYear(Integer year) { this.year = year; }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
 }
