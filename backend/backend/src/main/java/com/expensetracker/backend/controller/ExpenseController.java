@@ -1,8 +1,13 @@
 package com.expensetracker.backend.controller;
 
 import com.expensetracker.backend.entity.Expense;
+import com.expensetracker.backend.entity.User;
+import com.expensetracker.backend.repository.UserRepository;
 import com.expensetracker.backend.service.ExpenseService;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -11,40 +16,44 @@ import java.util.List;
 @CrossOrigin("*")
 public class ExpenseController {
 
-    private final ExpenseService expenseService;
+    @Autowired
+    private UserRepository userRepo;
 
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
+    private final ExpenseService service;
+
+    public ExpenseController(ExpenseService service) {
+        this.service = service;
+    }
+
+    private User getLoggedInUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepo.findByEmail(email);
     }
 
     @PostMapping
     public Expense addExpense(@RequestBody Expense expense) {
-        return expenseService.saveExpense(expense);
+        expense.setUser(getLoggedInUser());
+        return service.saveExpense(expense);
     }
 
     @GetMapping
     public List<Expense> getAllExpenses() {
-        return expenseService.getAllExpenses();
+        return service.getAllByUser(getLoggedInUser());
     }
 
-    // ✅ SUMMARY MUST COME FIRST
     @GetMapping("/summary")
-    public List<Object[]> expenseSummary() {
-        return expenseService.getExpenseSummary();
-    }
-
-    @GetMapping("/{id}")
-    public Expense getExpenseById(@PathVariable Long id) {
-        return expenseService.getExpenseById(id);
+    public List<Object[]> summary() {
+        return service.getExpenseSummaryByUser(getLoggedInUser());
     }
 
     @PutMapping("/{id}")
     public Expense updateExpense(@PathVariable Long id, @RequestBody Expense expense) {
-        return expenseService.updateExpense(id, expense);
+        expense.setUser(getLoggedInUser());
+        return service.updateExpense(id, expense);
     }
 
     @DeleteMapping("/{id}")
     public void deleteExpense(@PathVariable Long id) {
-        expenseService.deleteExpense(id);
+        service.deleteExpense(id);
     }
 }

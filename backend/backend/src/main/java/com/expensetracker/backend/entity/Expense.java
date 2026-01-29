@@ -12,50 +12,38 @@ public class Expense {
     private Long id;
 
     private String title;
-
     private double amount;
-
     private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Expense() {}
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
 
-    public double getAmount() {
-        return amount;
-    }
+    public double getAmount() { return amount; }
 
-    public LocalDate getDate() {
-        return date;
-    }
+    public LocalDate getDate() { return date; }
 
-    public Category getCategory() {
-        return category;
-    }
+    public Category getCategory() { return category; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public User getUser() { return user; }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+    public void setTitle(String title) { this.title = title; }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    public void setAmount(double amount) { this.amount = amount; }
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
+    public void setDate(LocalDate date) { this.date = date; }
+
+    public void setCategory(Category category) { this.category = category; }
+
+    public void setUser(User user) { this.user = user; }
 }

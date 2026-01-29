@@ -1,25 +1,32 @@
 import ExpenseChart from "../components/Expense/ExpenseChart";
 import MonthlyBarChart from "../components/Expense/MonthlyBarChart";
 import BudgetVsExpense from "../components/Budget/BudgetVsExpense";
+import "./Dashboard.css";
 
 export default function Dashboard() {
   return (
-    <div>
-      <h1>Expense Tracker</h1>
+    <div className="dashboard">
+      
+      <div className="section-title">Financial Overview</div>
 
-      <h2>Category-wise Expense (Pie)</h2>
-      <ExpenseChart />
+      <div className="dashboard-grid">
 
-      <h2>Monthly Expenses</h2>
-      <MonthlyBarChart />
+        <div className="card large-card">
+          <h3>Category-wise Spending</h3>
+          <ExpenseChart />
+        </div>
 
-      <h2>Budget vs Expense</h2>
-      <BudgetVsExpense />
+        <div className="card">
+          <h3>Monthly Spend</h3>
+          <MonthlyBarChart />
+        </div>
 
-      <ul>
-        <li><a href="/categories">Categories</a></li>
-        <li><a href="/expenses">Expenses</a></li>
-      </ul>
+        <div className="card">
+          <h3>Budget vs Expense</h3>
+          <BudgetVsExpense />
+        </div>
+
+      </div>
     </div>
   );
 }

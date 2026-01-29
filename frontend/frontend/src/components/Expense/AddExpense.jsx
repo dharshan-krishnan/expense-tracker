@@ -11,7 +11,7 @@ export default function AddExpense() {
     title: "",
     amount: "",
     date: "",
-    categoryId: "",
+    categoryId: ""
   });
 
   useEffect(() => {
@@ -29,7 +29,14 @@ export default function AddExpense() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addExpense(expense);
+
+    await addExpense({
+      title: expense.title,
+      amount: Number(expense.amount),
+      date: expense.date,
+      category: { id: Number(expense.categoryId) }  // FIXED
+    });
+
     navigate("/expenses");
   };
 
@@ -38,27 +45,11 @@ export default function AddExpense() {
       <h2>Add Expense</h2>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          name="title"
-          onChange={handleChange}
-        />
+        <input type="text" placeholder="Title" name="title" onChange={handleChange} />
+        <input type="number" placeholder="Amount" name="amount" onChange={handleChange} />
+        <input type="date" name="date" onChange={handleChange} />
 
-        <input
-          type="number"
-          placeholder="Amount"
-          name="amount"
-          onChange={handleChange}
-        />
-
-        <input
-          type="date"
-          name="date"
-          onChange={handleChange}
-        />
-
-        <select name="categoryId" onChange={handleChange}>
+        <select name="categoryId" onChange={handleChange} required>
           <option>Select Category</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>

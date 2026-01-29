@@ -1,47 +1,66 @@
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import axios from "axios";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 export default function BudgetVsExpense() {
-  const [data, setData] = useState(null);
+  const [budgets, setBudgets] = useState([]);
+  const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
-    Promise.all([
-      axios.get("http://localhost:8080/api/budgets"),
-      axios.get("http://localhost:8080/api/expenses")
-    ]).then(([budgetRes, expenseRes]) => {
-      const budgets = budgetRes.data;
-      const expenses = expenseRes.data;
-
-      const labels = budgets.map(b => b.category.name);
-
-      const budgetAmounts = budgets.map(b => b.amount);
-
-      const expenseTotals = labels.map(label =>
-        expenses
-          .filter(e => e.category?.name === label)
-          .reduce((sum, e) => sum + e.amount, 0)
-      );
-
-      setData({
-        labels,
-        datasets: [
-          {
-            label: "Budget",
-            data: budgetAmounts,
-            backgroundColor: "rgba(54,162,235,0.6)"
-          },
-          {
-            label: "Expense",
-            data: expenseTotals,
-            backgroundColor: "rgba(255,99,132,0.6)"
-          }
-        ]
-      });
-    });
+    load();
   }, []);
 
-  if (!data) return <p>Loading budget comparison...</p>;
+  const load = async () => {
+    const b = await (await fetch("http://localhost:8080/api/budgets")).json();
+    const e = await (await fetch("http://localhost:8080/api/expenses")).json();
 
-  return <Bar data={data} />;
+    setBudgets(b);
+    setExpenses(e);
+  };
+
+  const categories = budgets.map(b => b.category);
+  const budgetValues = budgets.map(b => b.amount);
+
+  const expenseValues = budgets.map(b =>
+  expenses
+    .filter(e => e.category && e.category.name === b.category)
+    .reduce((sum, x) => sum + x.amount, 0)
+);
+
+
+  const data = {
+    labels: categories,
+    datasets: [
+      {
+        label: "Budget",
+        data: budgetValues,
+        backgroundColor: "rgba(54, 162, 235, 0.7)", // Blue
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 2
+      },
+      {
+        label: "Expense",
+        data: expenseValues,
+        backgroundColor: "rgba(255, 99, 132, 0.7)", // Red
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 2
+      }
+    ]
+  };
+
+  return (
+    <div style={{ width: "700px", marginTop: "40px" }}>
+      <h3>Budget vs Expense</h3>
+      <Bar data={data} />
+    </div>
+  );
 }

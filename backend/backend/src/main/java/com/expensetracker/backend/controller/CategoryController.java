@@ -1,8 +1,12 @@
 package com.expensetracker.backend.controller;
 
 import com.expensetracker.backend.entity.Category;
+import com.expensetracker.backend.entity.User;
+import com.expensetracker.backend.repository.UserRepository;
 import com.expensetracker.backend.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -11,34 +15,33 @@ import java.util.List;
 @CrossOrigin("*")
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    @Autowired
+    private UserRepository userRepo;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
+    private final CategoryService service;
+
+    public CategoryController(CategoryService service) {
+        this.service = service;
     }
 
-    // CREATE
+    private User getLoggedInUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepo.findByEmail(email);
+    }
+
     @PostMapping
     public Category addCategory(@RequestBody Category category) {
-        return categoryService.save(category);
+        category.setUser(getLoggedInUser());
+        return service.save(category);
     }
 
-    // READ
     @GetMapping
     public List<Category> getAllCategories() {
-        return categoryService.getAll();
+        return service.getAllByUser(getLoggedInUser());
     }
 
-    // UPDATE
-    @PutMapping("/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        category.setId(id);
-        return categoryService.save(category);
-    }
-
-    // DELETE
     @DeleteMapping("/{id}")
     public void deleteCategory(@PathVariable Long id) {
-        categoryService.delete(id);
+        service.delete(id);
     }
 }

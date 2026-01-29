@@ -1,6 +1,7 @@
 package com.expensetracker.backend.service.impl;
 
 import com.expensetracker.backend.entity.Expense;
+import com.expensetracker.backend.entity.User;
 import com.expensetracker.backend.repository.ExpenseRepository;
 import com.expensetracker.backend.service.ExpenseService;
 import org.springframework.stereotype.Service;
@@ -10,47 +11,47 @@ import java.util.List;
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
-    private final ExpenseRepository expenseRepository;
+    private final ExpenseRepository repo;
 
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository) {
-        this.expenseRepository = expenseRepository;
+    public ExpenseServiceImpl(ExpenseRepository repo) {
+        this.repo = repo;
     }
 
     @Override
     public Expense saveExpense(Expense expense) {
-        return expenseRepository.save(expense);
+        return repo.save(expense);
     }
 
     @Override
-    public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+    public List<Expense> getAllByUser(User user) {
+        return repo.findByUser(user);
     }
 
     @Override
     public Expense getExpenseById(Long id) {
-        return expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found with id: " + id));
+        return repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
     }
 
     @Override
     public Expense updateExpense(Long id, Expense expense) {
-        Expense existing = getExpenseById(id);
+        Expense e = getExpenseById(id);
 
-        existing.setTitle(expense.getTitle());
-        existing.setAmount(expense.getAmount());
-        existing.setDate(expense.getDate());
-        existing.setCategory(expense.getCategory());
+        e.setTitle(expense.getTitle());
+        e.setAmount(expense.getAmount());
+        e.setDate(expense.getDate());
+        e.setCategory(expense.getCategory());
 
-        return expenseRepository.save(existing);
+        return repo.save(e);
     }
 
     @Override
     public void deleteExpense(Long id) {
-        expenseRepository.deleteById(id);
+        repo.deleteById(id);
     }
 
     @Override
-    public List<Object[]> getExpenseSummary() {
-        return expenseRepository.expenseSummary();
+    public List<Object[]> getExpenseSummaryByUser(User user) {
+        return repo.expenseSummaryByUser(user);
     }
 }
