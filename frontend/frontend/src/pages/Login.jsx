@@ -6,6 +6,8 @@ import { useAuth } from "../auth/AuthContext";
 export default function Login() {
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -14,21 +16,55 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const res = await api.post("/auth/login", form);
+    if (!form.email || !form.password) {
+      setError("Email and password are required");
+      setLoading(false);
+      return;
+    }
 
-    login(res.data); // Save JWT
-    navigate("/");
+    try {
+      const res = await api.post("/auth/login", form);
+      console.log("Login successful, token:", res.data);
+      login(res.data); // JWT token string
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data || "Login failed. Check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="auth-container">
       <h2>Sign In</h2>
 
+      {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+
       <form onSubmit={handleSubmit}>
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} />
-        <button>Login</button>
+        <input 
+          name="email" 
+          type="email" 
+          placeholder="Email" 
+          value={form.email}
+          onChange={handleChange}
+          required 
+        />
+        <input 
+          name="password" 
+          type="password" 
+          placeholder="Password" 
+          value={form.password}
+          onChange={handleChange}
+          required 
+        />
+        <button disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
 
       <p>

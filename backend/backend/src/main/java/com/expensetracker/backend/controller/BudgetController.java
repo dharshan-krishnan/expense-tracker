@@ -27,7 +27,7 @@ public class BudgetController {
 
     private User getLoggedInUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepo.findByEmail(email);
+        return userRepo.findByEmail(email).orElse(null);
     }
 
     @PostMapping

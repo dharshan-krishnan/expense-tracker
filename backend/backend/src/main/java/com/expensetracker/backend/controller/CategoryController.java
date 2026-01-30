@@ -26,7 +26,7 @@ public class CategoryController {
 
     private User getLoggedInUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepo.findByEmail(email);
+        return userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
     @PostMapping
@@ -38,6 +38,11 @@ public class CategoryController {
     @GetMapping
     public List<Category> getAllCategories() {
         return service.getAllByUser(getLoggedInUser());
+    }
+
+    @PutMapping("/{id}")
+    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
+        return service.update(id, category);
     }
 
     @DeleteMapping("/{id}")

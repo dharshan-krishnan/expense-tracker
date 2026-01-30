@@ -6,26 +6,34 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function ExpenseChart() {
   const [data, setData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadSummary();
   }, []);
 
   const loadSummary = async () => {
-    const res = await getExpenseSummary();
+    try {
+      const res = await getExpenseSummary();
 
-    // backend gives: [ ["fuel bro", 321] ]
-    const formatted = res.data.map(item => ({
-      name: item[0],
-      value: item[1]
-    }));
+      // backend gives: [ ["fuel bro", 321] ]
+      const formatted = res.data.map(item => ({
+        name: item[0],
+        value: item[1]
+      }));
 
-    setData(formatted);
+      setData(formatted);
+    } catch (err) {
+      console.error("Error loading expense summary:", err);
+      setError("Failed to load data");
+    }
   };
 
   return (
     <div>
       <h3>Expense Summary</h3>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {data.length === 0 ? (
         <p>No data</p>
