@@ -11,5 +11,7 @@ public interface CategoryService {
 
     List<Category> getAllByUser(User user);
 
+    Category update(Long id, Category category);
+
     void delete(Long id);
 }

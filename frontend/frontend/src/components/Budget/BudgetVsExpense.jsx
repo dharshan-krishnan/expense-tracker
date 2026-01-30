@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import api from "../../services/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,17 +15,23 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 export default function BudgetVsExpense() {
   const [budgets, setBudgets] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     load();
   }, []);
 
   const load = async () => {
-    const b = await (await fetch("http://localhost:8080/api/budgets")).json();
-    const e = await (await fetch("http://localhost:8080/api/expenses")).json();
-
-    setBudgets(b);
-    setExpenses(e);
+    try {
+      const bRes = await api.get("/budgets");
+      const eRes = await api.get("/expenses");
+      
+      setBudgets(bRes.data);
+      setExpenses(eRes.data);
+    } catch (err) {
+      console.error("Error loading budget vs expense data:", err);
+      setError("Failed to load data");
+    }
   };
 
   const categories = budgets.map(b => b.category);
@@ -56,6 +63,8 @@ export default function BudgetVsExpense() {
       }
     ]
   };
+
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div style={{ width: "700px", marginTop: "40px" }}>

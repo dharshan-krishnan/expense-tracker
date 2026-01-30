@@ -28,7 +28,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category update(Long id, Category category) {
+        Category cat = repo.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        cat.setName(category.getName());
+        return repo.save(cat);
+    }
+
+    @Override
     public void delete(Long id) {
-        repo.deleteById(id);
+        if (id != null) {
+            repo.deleteById(id);
+        }
     }
 }
