@@ -18,19 +18,29 @@ export default function ExpenseManager() {
   const loadExpenses = async () => {
     try {
       const res = await api.get("/expenses");
-      setExpenses(res.data);
+      if (res.data && Array.isArray(res.data)) {
+        setExpenses(res.data);
+      } else {
+        setExpenses([]);
+      }
     } catch (err) {
-      setError("Failed to load expenses");
-      console.error(err);
+      console.error("Failed to load expenses:", err);
+      setError("Failed to load expenses. Please try again.");
+      setExpenses([]);
     }
   };
 
   const loadCategories = async () => {
     try {
       const res = await api.get("/categories");
-      setCategories(res.data);
+      if (res.data && Array.isArray(res.data)) {
+        setCategories(res.data);
+      } else {
+        setCategories([]);
+      }
     } catch (err) {
-      console.error("Failed to load categories", err);
+      console.error("Failed to load categories:", err);
+      setCategories([]);
     }
   };
 

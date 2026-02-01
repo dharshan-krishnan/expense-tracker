@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../auth/AuthContext";
 import ExpenseChart from "../components/Expense/ExpenseChart";
 import MonthlyBarChart from "../components/Expense/MonthlyBarChart";
 import BudgetVsExpense from "../components/Budget/BudgetVsExpense";
@@ -8,13 +9,14 @@ import CategoryManager from "../components/Category/CategoryManager";
 import "./Dashboard.css";
 
 export default function Dashboard() {
+  const { username } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>💰 Expense Tracker Dashboard</h1>
-        <p>Manage your finances with ease</p>
+        <p>Hello {username}! Manage your finances with ease</p>
       </div>
 
       <div className="dashboard-nav">

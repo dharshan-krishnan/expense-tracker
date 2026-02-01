@@ -26,11 +26,13 @@ export default function BudgetVsExpense() {
       const bRes = await api.get("/budgets");
       const eRes = await api.get("/expenses");
       
-      setBudgets(bRes.data);
-      setExpenses(eRes.data);
+      setBudgets(Array.isArray(bRes.data) ? bRes.data : []);
+      setExpenses(Array.isArray(eRes.data) ? eRes.data : []);
     } catch (err) {
       console.error("Error loading budget vs expense data:", err);
       setError("Failed to load data");
+      setBudgets([]);
+      setExpenses([]);
     }
   };
 
