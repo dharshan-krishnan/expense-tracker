@@ -74,7 +74,7 @@ export default function Reports() {
     datasets: [{
       label: "Expenses by Category",
       data: Object.values(categoryData),
-      backgroundColor: ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"],
+      backgroundColor: ["#8B5A2B", "#C7A17A", "#5C3A1A", "#4A7C59", "#A65D57", "#6B5344"],
     }]
   };
 
@@ -94,14 +94,14 @@ export default function Reports() {
     datasets: [{
       label: "Monthly Expenses",
       data: months.map(m => monthlyExpenses[m]),
-      backgroundColor: "#4F46E5",
-      borderRadius: 6,
+      backgroundColor: "rgba(139, 90, 43, 0.8)",
+      borderRadius: 10,
     }]
   };
 
-  const getDaysInMonth = (y, m) => new Date(y, m, 0).getDate();
-  const firstDay = new Date(y, month - 1, 1).getDay();
-  const daysInMonth = getDaysInMonth(y, month);
+  const getDaysInMonth = (yr, m) => new Date(yr, m, 0).getDate();
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = getDaysInMonth(year, month);
 
   const dayNotes = notes[selectedMonth] || {};
 

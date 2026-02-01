@@ -32,6 +32,7 @@ public class CategoryController {
     @PostMapping
     public Category addCategory(@RequestBody Category category) {
         category.setUser(getLoggedInUser());
+        category.setIsDefault(false);
         return service.save(category);
     }
 

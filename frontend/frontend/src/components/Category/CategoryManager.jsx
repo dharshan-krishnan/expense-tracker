@@ -62,11 +62,17 @@ export default function CategoryManager() {
   };
 
   const handleEdit = (category) => {
+    if (category.isDefault) return;
     setForm({ name: category.name });
     setEditing(category.id);
   };
 
   const handleDelete = async (id) => {
+    const cat = categories.find(c => c.id === id);
+    if (cat?.isDefault) {
+      alert("Cannot delete default category");
+      return;
+    }
     if (window.confirm("Are you sure? This will affect related expenses and budgets.")) {
       try {
         await api.delete(`/categories/${id}`);
@@ -126,26 +132,33 @@ export default function CategoryManager() {
           ) : (
             <div className="category-list">
               {categories.map((cat, index) => (
-                <div key={cat.id} className="category-item">
+                <div key={cat.id} className={`category-item ${cat.isDefault ? "default-cat" : ""}`}>
                   <div className="category-info">
                     <div className="category-number">#{index + 1}</div>
-                    <div className="category-name">{cat.name}</div>
+                    <div className="category-name">
+                      {cat.name}
+                      {cat.isDefault && <span className="default-badge">Default</span>}
+                    </div>
                   </div>
                   <div className="category-actions">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEdit(cat)}
-                      title="Edit"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      className="delete-btn"
-                      onClick={() => handleDelete(cat.id)}
-                      title="Delete"
-                    >
-                      🗑️
-                    </button>
+                    {!cat.isDefault && (
+                      <>
+                        <button 
+                          className="edit-btn"
+                          onClick={() => handleEdit(cat)}
+                          title="Edit"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          className="delete-btn"
+                          onClick={() => handleDelete(cat.id)}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

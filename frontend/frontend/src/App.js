@@ -18,6 +18,8 @@ import BudgetList from "./components/Budget/BudgetList";
 import AddBudget from "./components/Budget/AddBudget";
 import EditBudget from "./components/Budget/EditBudget";
 
+import Reports from "./pages/Reports";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -41,6 +43,8 @@ export default function App() {
           <Route path="/budgets" element={<PrivateRoute><BudgetList /></PrivateRoute>} />
           <Route path="/budgets/add" element={<PrivateRoute><AddBudget /></PrivateRoute>} />
           <Route path="/budgets/edit/:id" element={<PrivateRoute><EditBudget /></PrivateRoute>} />
+
+          <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
 
         </Routes>
       </BrowserRouter>

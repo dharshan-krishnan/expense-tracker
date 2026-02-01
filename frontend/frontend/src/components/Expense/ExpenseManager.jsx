@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { getPaymentAccounts, ensurePaymentDefaults } from "../../services/paymentAccountService";
 import "../Manager.css";
 
 export default function ExpenseManager() {
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ title: "", amount: "", date: "", category: "" });
+  const [paymentAccounts, setPaymentAccounts] = useState([]);
+  const [form, setForm] = useState({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -13,7 +15,15 @@ export default function ExpenseManager() {
   useEffect(() => {
     loadExpenses();
     loadCategories();
+    loadPaymentAccounts();
   }, []);
+
+  useEffect(() => {
+    if (paymentAccounts.length === 0) {
+      const t = setTimeout(() => loadPaymentAccounts(), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [paymentAccounts.length]);
 
   const loadExpenses = async () => {
     try {
@@ -33,14 +43,28 @@ export default function ExpenseManager() {
   const loadCategories = async () => {
     try {
       const res = await api.get("/categories");
-      if (res.data && Array.isArray(res.data)) {
-        setCategories(res.data);
-      } else {
-        setCategories([]);
-      }
+      const data = res.data && Array.isArray(res.data) ? res.data : [];
+      setCategories(data.sort((a, b) => (a.isDefault ? 0 : 1) - (b.isDefault ? 0 : 1)));
     } catch (err) {
       console.error("Failed to load categories:", err);
       setCategories([]);
+    }
+  };
+
+  const loadPaymentAccounts = async () => {
+    try {
+      let res = await getPaymentAccounts();
+      let accounts = res.data && Array.isArray(res.data) ? res.data : [];
+      if (accounts.length === 0) {
+        try {
+          res = await ensurePaymentDefaults();
+          accounts = res.data && Array.isArray(res.data) ? res.data : [];
+        } catch (_) {}
+      }
+      setPaymentAccounts(accounts);
+    } catch (err) {
+      console.error("Failed to load payment accounts:", err);
+      setPaymentAccounts([]);
     }
   };
 
@@ -65,8 +89,16 @@ export default function ExpenseManager() {
         title: form.title,
         amount: parseFloat(form.amount),
         date: form.date,
-        category: categoryObj
+        category: categoryObj,
+        notes: form.notes || null
       };
+      if (form.paymentAccount) {
+        data.paymentAccount = { id: parseInt(form.paymentAccount) };
+      }
+      const catName = categoryObj?.name?.toLowerCase();
+      if (catName === "others" && form.categoryOther?.trim()) {
+        data.categoryOther = form.categoryOther.trim();
+      }
 
       if (editing) {
         await api.put(`/expenses/${editing}`, data);
@@ -74,7 +106,7 @@ export default function ExpenseManager() {
         await api.post("/expenses", data);
       }
 
-      setForm({ title: "", amount: "", date: "", category: "" });
+      setForm({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
       setEditing(null);
       loadExpenses();
     } catch (err) {
@@ -90,7 +122,10 @@ export default function ExpenseManager() {
       title: expense.title,
       amount: expense.amount,
       date: expense.date,
-      category: expense.category?.id || ""
+      category: expense.category?.id || "",
+      categoryOther: expense.categoryOther || "",
+      paymentAccount: expense.paymentAccount?.id || "",
+      notes: expense.notes || ""
     });
     setEditing(expense.id);
   };
@@ -107,7 +142,7 @@ export default function ExpenseManager() {
   };
 
   const handleCancel = () => {
-    setForm({ title: "", amount: "", date: "", category: "" });
+    setForm({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
     setEditing(null);
   };
 
@@ -160,11 +195,44 @@ export default function ExpenseManager() {
               onChange={handleChange}
               required
             >
-              <option value="">Select Category</option>
-              {categories.map(cat => (
+              <option value="">Select category</option>
+              {(categories.filter(c => c.isDefault).length ? categories.filter(c => c.isDefault) : categories).map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
+
+            {form.category && categories.find(c => c.id === parseInt(form.category))?.name?.toLowerCase() === "others" && (
+              <input
+                type="text"
+                name="categoryOther"
+                placeholder="Specify (e.g. Gifts, Donations)"
+                value={form.categoryOther}
+                onChange={handleChange}
+              />
+            )}
+
+            <select
+              name="paymentAccount"
+              value={form.paymentAccount}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select payment method</option>
+              {paymentAccounts.map(pa => (
+                <option key={pa.id} value={pa.id}>{pa.name}</option>
+              ))}
+            </select>
+            {paymentAccounts.length === 0 && (
+              <span className="form-hint">Cash and Bank will appear after loading.</span>
+            )}
+
+            <input
+              type="text"
+              name="notes"
+              placeholder="Note about this expense (optional)"
+              value={form.notes}
+              onChange={handleChange}
+            />
 
             <div className="form-buttons">
               <button type="submit" disabled={loading}>
@@ -191,8 +259,13 @@ export default function ExpenseManager() {
                   <div className="expense-info">
                     <div className="expense-title">{exp.title}</div>
                     <div className="expense-details">
-                      <span className="category-badge">{exp.category?.name}</span>
+                      <span className="category-badge">
+                        {exp.category?.name}
+                        {exp.categoryOther ? ` (${exp.categoryOther})` : ""}
+                      </span>
+                      <span className="payment-badge">{exp.paymentAccount?.name || "-"}</span>
                       <span className="date">{new Date(exp.date).toLocaleDateString()}</span>
+                      {exp.notes && <span className="expense-note" title={exp.notes}>📝</span>}
                     </div>
                   </div>
                   <div className="expense-amount">₹{exp.amount.toFixed(2)}</div>

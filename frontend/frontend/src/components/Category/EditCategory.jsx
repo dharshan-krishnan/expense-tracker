@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { updateCategory, getCategories } from "../../services/categoryService";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import "../Page.css";
 
 export default function EditCategory() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function EditCategory() {
   const loadCategory = async () => {
     const res = await getCategories();
     const category = res.data.find((c) => c.id === parseInt(id));
-    setName(category.name);
+    if (category) setName(category.name);
   };
 
   const handleSubmit = async (e) => {
@@ -26,20 +27,28 @@ export default function EditCategory() {
   };
 
   return (
-    <div>
-      <h2>Edit Category</h2>
+    <div className="form-page">
+      <Link to="/categories" className="back-link">⬅ Back to Categories</Link>
+      <div className="form-card">
+        <h2>Edit Category</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Category name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-
-        <button type="submit">Save</button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Category Name</label>
+            <input
+              type="text"
+              placeholder="Category name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-buttons-row">
+            <button type="submit">Save Changes</button>
+            <Link to="/categories" className="btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

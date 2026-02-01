@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import BalanceOverview from "../components/Dashboard/BalanceOverview";
 import ExpenseChart from "../components/Expense/ExpenseChart";
 import MonthlyBarChart from "../components/Expense/MonthlyBarChart";
 import BudgetVsExpense from "../components/Budget/BudgetVsExpense";
@@ -49,6 +50,8 @@ export default function Dashboard() {
       {activeTab === "overview" && (
         <div className="tab-content">
           <div className="section-title">Financial Overview</div>
+
+          <BalanceOverview />
 
           <div className="dashboard-grid">
             <div className="card large-card">

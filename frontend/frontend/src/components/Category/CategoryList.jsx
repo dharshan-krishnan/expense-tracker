@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { getCategories, deleteCategory } from "../../services/categoryService";
 import { Link } from "react-router-dom";
+import "../Page.css";
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
@@ -63,54 +64,25 @@ export default function CategoryList() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Link to="/" style={{ 
-        textDecoration: 'none', 
-        color: '#4F46E5',
-        fontSize: '15px',
-        fontWeight: '600',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        marginBottom: '15px',
-        transition: 'all 0.2s ease',
-        padding: '8px 12px',
-        borderRadius: '8px'
-      }} onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(79, 70, 229, 0.1)';
-        e.currentTarget.style.transform = 'translateX(-4px)';
-      }} onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent';
-        e.currentTarget.style.transform = 'translateX(0)';
-      }}>
-        ⬅ Back to Dashboard
-      </Link>
-      <h2>Categories</h2>
+    <div className="page-wrapper">
+      <Link to="/" className="back-link">⬅ Back to Dashboard</Link>
+      <h2 className="page-title">Categories</h2>
 
       {error && (
-        <div style={{ 
-          color: '#d32f2f', 
-          padding: '12px', 
-          border: '1px solid #d32f2f',
-          borderRadius: '4px',
-          backgroundColor: '#ffebee',
-          marginBottom: '15px'
-        }}>
+        <div className="page-error">
           <p>{error}</p>
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-        <Link to="/categories/add">
-          <button>Add New Category</button>
-        </Link>
-        <div style={{ color: '#666' }}>Total: {categories.length} categories</div>
+      <div className="page-actions">
+        <Link to="/categories/add" className="btn-primary">+ Add New Category</Link>
+        <span className="page-summary">Total: {categories.length} categories</span>
       </div>
 
       {loading && <p>Loading categories...</p>}
 
       {!loading && (
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-container">
           <table className="data-table">
             <thead>
               <tr>

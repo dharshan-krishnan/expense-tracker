@@ -24,12 +24,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllByUser(User user) {
-        return repo.findByUser(user);
+        return repo.findByUserOrUserIsNull(user);
     }
 
     @Override
     public Category update(Long id, Category category) {
         Category cat = repo.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        if (Boolean.TRUE.equals(cat.getIsDefault())) {
+            throw new RuntimeException("Cannot edit default category");
+        }
         cat.setName(category.getName());
         return repo.save(cat);
     }
@@ -37,6 +40,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         if (id != null) {
+            Category cat = repo.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+            if (Boolean.TRUE.equals(cat.getIsDefault())) {
+                throw new RuntimeException("Cannot delete default category");
+            }
             repo.deleteById(id);
         }
     }
