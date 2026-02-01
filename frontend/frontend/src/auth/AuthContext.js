@@ -4,27 +4,36 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState("");
+  const [username, setUsername] = useState("");
 
-  // Load token on app start
+  // Load token and username on app start
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
+    const savedUsername = localStorage.getItem("username");
     if (savedToken) {
       setToken(savedToken);
     }
+    if (savedUsername) {
+      setUsername(savedUsername);
+    }
   }, []);
 
-  const login = (jwtToken) => {
+  const login = (jwtToken, usr) => {
     localStorage.setItem("token", jwtToken);
+    localStorage.setItem("username", usr);
     setToken(jwtToken);
+    setUsername(usr);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("username");
     setToken("");
+    setUsername("");
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, username, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

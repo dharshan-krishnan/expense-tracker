@@ -1,0 +1,482 @@
+.reports-container {
+  padding: 30px 20px;
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+  min-height: 100vh;
+}
+
+.reports-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.reports-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.reports-header p {
+  font-size: 16px;
+  color: #6B7280;
+}
+
+.error-box {
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 15px;
+  color: #DC2626;
+  margin-bottom: 20px;
+}
+
+.view-selector {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.view-btn {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7280;
+  transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+  border-color: #4F46E5;
+  color: #4F46E5;
+}
+
+.view-btn.active {
+  background: #4F46E5;
+  border-color: #4F46E5;
+  color: white;
+}
+
+.reports-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ===== Month View ===== */
+.month-view {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+}
+
+.month-selector {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.month-input {
+  padding: 10px 15px;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.month-input:focus {
+  outline: none;
+  border-color: #4F46E5;
+}
+
+.month-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4F46E5;
+  padding: 10px 20px;
+  background: #EEF2FF;
+  border-radius: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 1024px) {
+  .calendar-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Calendar Component */
+.calendar-container h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.calendar {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #F3F4F6;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.weekday {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #6B7280;
+  font-size: 13px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  min-height: 300px;
+}
+
+.day {
+  padding: 8px;
+  border-bottom: 1px solid #F3F4F6;
+  border-right: 1px solid #F3F4F6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.day:nth-child(7n) {
+  border-right: none;
+}
+
+.day:hover {
+  background: #F9FAFB;
+}
+
+.day.empty {
+  background: #FAFAFA;
+  cursor: default;
+}
+
+.day.has-expense {
+  background: #EEF2FF;
+  font-weight: 600;
+}
+
+.day.selected {
+  background: #4F46E5;
+  color: white;
+}
+
+.day-number {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.day-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #10B981;
+  padding: 2px 4px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 3px;
+}
+
+.day.selected .day-amount {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+/* Date Detail Panel */
+.date-detail-panel {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.date-detail-panel h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 15px;
+}
+
+.date-expenses {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #E5E7EB;
+}
+
+.expense-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.expense-row:last-child {
+  border-bottom: none;
+}
+
+.expense-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expense-cat {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4F46E5;
+  text-transform: uppercase;
+}
+
+.expense-title {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.expense-amt {
+  font-weight: 700;
+  color: #10B981;
+  font-size: 14px;
+}
+
+.date-total {
+  background: linear-gradient(135deg, #4F46E5, #6366F1);
+  color: white;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Note Section */
+.note-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-section label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.note-section textarea {
+  padding: 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111827;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.note-section textarea:focus {
+  outline: none;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Daily List */
+.daily-list {
+  margin-top: 30px;
+}
+
+.daily-list h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 15px;
+}
+
+.daily-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.daily-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.daily-item:hover {
+  border-color: #4F46E5;
+  background: #F9FAFB;
+}
+
+.daily-item.active {
+  background: #EEF2FF;
+  border-color: #4F46E5;
+}
+
+.daily-date {
+  font-weight: 600;
+  color: #111827;
+  min-width: 120px;
+}
+
+.daily-items-count {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+.daily-amount {
+  font-weight: 700;
+  color: #10B981;
+  font-size: 15px;
+}
+
+/* ===== Category Analysis View ===== */
+.category-view {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.chart-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.no-data {
+  text-align: center;
+  color: #9CA3AF;
+  padding: 40px 20px;
+}
+
+.category-breakdown {
+  margin-top: 30px;
+}
+
+.category-breakdown h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 15px;
+}
+
+/* ===== Day View ===== */
+.day-view {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+}
+
+.day-view h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+/* Data Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.data-table thead {
+  background: #F3F4F6;
+  font-weight: 700;
+  color: #111827;
+}
+
+.data-table tbody tr:hover {
+  background: #F9FAFB;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Scrollbar styling */
+.daily-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.daily-items::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 3px;
+}
+
+.daily-items::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.daily-items::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}

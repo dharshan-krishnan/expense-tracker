@@ -1,11 +1,13 @@
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import "./Auth.css";
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
@@ -14,11 +16,11 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
-    // Validation
-    if (!form.email || !form.password) {
-      setError("Email and password are required");
+    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
+      setError("All fields are required");
       setLoading(false);
       return;
     }
@@ -29,13 +31,20 @@ export default function Signup() {
       return;
     }
 
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await api.post("/auth/signup", form);
-      console.log("Signup response:", response.data);
-      alert("Signup successful! Please login.");
-      navigate("/login");
+      const response = await api.post("/auth/signup", { username: form.username, email: form.email, password: form.password });
+      setSuccess("Account created! Redirecting to login...");
+      setError("");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err) {
-      console.error("Signup error:", err);
       setError(err.response?.data || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
@@ -44,35 +53,81 @@ export default function Signup() {
 
   return (
     <div className="auth-container">
-      <h2>Create Account</h2>
+      <h2>Get Started</h2>
 
-      {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+      <div className="auth-card">
+        {error && (
+          <div className="auth-alert auth-alert-error">
+            <p>{error}</p>
+            <button className="auth-alert-close" onClick={() => setError("")}>×</button>
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit}>
-        <input 
-          name="email" 
-          type="email" 
-          placeholder="Email" 
-          value={form.email}
-          onChange={handleChange}
-          required 
-        />
-        <input 
-          name="password" 
-          type="password" 
-          placeholder="Password" 
-          value={form.password}
-          onChange={handleChange}
-          required 
-        />
-        <button disabled={loading}>
-          {loading ? "Signing up..." : "Sign Up"}
-        </button>
-      </form>
+        {success && (
+          <div className="auth-alert auth-alert-success">
+            <p>{success}</p>
+            <button className="auth-alert-close" onClick={() => setSuccess("")}>×</button>
+          </div>
+        )}
 
-      <p>
-        Already have an account? <a href="/login">Login</a>
-      </p>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Username</label>
+            <input 
+              name="username" 
+              type="text" 
+              placeholder="john_doe" 
+              value={form.username}
+              onChange={handleChange}
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email Address</label>
+            <input 
+              name="email" 
+              type="email" 
+              placeholder="you@example.com" 
+              value={form.email}
+              onChange={handleChange}
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password</label>
+            <input 
+              name="password" 
+              type="password" 
+              placeholder="••••••••" 
+              value={form.password}
+              onChange={handleChange}
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input 
+              name="confirmPassword" 
+              type="password" 
+              placeholder="••••••••" 
+              value={form.confirmPassword}
+              onChange={handleChange}
+              required 
+            />
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          Already have an account? <a href="/login">Sign in</a>
+        </div>
+      </div>
     </div>
   );
 }

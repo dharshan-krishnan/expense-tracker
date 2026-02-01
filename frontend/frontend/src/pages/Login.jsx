@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import "./Auth.css";
 
 export default function Login() {
   const { login } = useAuth();
@@ -27,49 +28,83 @@ export default function Login() {
 
     try {
       const res = await api.post("/auth/login", form);
-      console.log("Login successful, token:", res.data);
-      login(res.data); // JWT token string
-      navigate("/");
+      
+      if (res.status === 200 && res.data) {
+        let token, username;
+        
+        if (typeof res.data === 'object' && res.data.token) {
+          token = res.data.token;
+          username = res.data.username;
+          
+          if (typeof token === 'string' && token.length > 0 && typeof username === 'string' && username.trim().length > 0) {
+            login(token, username);
+            navigate("/");
+          } else {
+            setError("Invalid response from server. Please try again.");
+          }
+        } else if (typeof res.data === 'string' && res.data.length > 0) {
+          login(res.data, "User");
+          navigate("/");
+        } else {
+          setError("Invalid login response from server");
+        }
+      } else {
+        setError("Invalid login response from server");
+      }
     } catch (err) {
-      console.error("Login error:", err);
-      setError(err.response?.data || "Login failed. Check your credentials.");
+      const errorMessage = err.response?.data || "Login failed. Check your credentials.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
     <div className="auth-container">
-      <h2>Sign In</h2>
+      <h2>Welcome Back</h2>
 
-      {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+      <div className="auth-card">
+        {error && (
+          <div className="auth-alert auth-alert-error">
+            <p>{error}</p>
+            <button className="auth-alert-close" onClick={() => setError("")}>×</button>
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit}>
-        <input 
-          name="email" 
-          type="email" 
-          placeholder="Email" 
-          value={form.email}
-          onChange={handleChange}
-          required 
-        />
-        <input 
-          name="password" 
-          type="password" 
-          placeholder="Password" 
-          value={form.password}
-          onChange={handleChange}
-          required 
-        />
-        <button disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input 
+              name="email" 
+              type="email" 
+              placeholder="you@example.com" 
+              value={form.email}
+              onChange={handleChange}
+              required 
+            />
+          </div>
 
-      <p>
-        No account? <a href="/signup">Sign Up</a>
-      </p>
+          <div className="form-group">
+            <label>Password</label>
+            <input 
+              name="password" 
+              type="password" 
+              placeholder="••••••••" 
+              value={form.password}
+              onChange={handleChange}
+              required 
+            />
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Sign In"}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          Don't have an account? <a href="/signup">Create one</a>
+        </div>
+      </div>
     </div>
   );
 }

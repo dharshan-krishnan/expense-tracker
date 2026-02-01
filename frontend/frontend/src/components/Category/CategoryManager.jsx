@@ -16,10 +16,15 @@ export default function CategoryManager() {
   const loadCategories = async () => {
     try {
       const res = await api.get("/categories");
-      setCategories(res.data);
+      if (res.data && Array.isArray(res.data)) {
+        setCategories(res.data);
+      } else {
+        setCategories([]);
+      }
     } catch (err) {
-      setError("Failed to load categories");
-      console.error(err);
+      console.error("Failed to load categories:", err);
+      setError("Failed to load categories. Please try again.");
+      setCategories([]);
     }
   };
 

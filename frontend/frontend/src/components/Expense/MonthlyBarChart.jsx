@@ -24,7 +24,12 @@ export default function MonthlyBarChart() {
   const loadMonthlyData = async () => {
     try {
       const res = await api.get("/expenses");
-      const expenses = res.data;
+      const expenses = Array.isArray(res.data) ? res.data : [];
+
+      if (expenses.length === 0) {
+        setError("No expense data available");
+        return;
+      }
 
       const monthlyTotals = {};
 
@@ -33,6 +38,11 @@ export default function MonthlyBarChart() {
         const month = e.date.substring(0, 7); // YYYY-MM
         monthlyTotals[month] = (monthlyTotals[month] || 0) + e.amount;
       });
+
+      if (Object.keys(monthlyTotals).length === 0) {
+        setError("No valid monthly data found");
+        return;
+      }
 
       setChartData({
         labels: Object.keys(monthlyTotals),
