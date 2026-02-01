@@ -6,7 +6,7 @@ import "./Sidebar.css";
 export default function Sidebar() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const handleLogout = () => {
     logout();

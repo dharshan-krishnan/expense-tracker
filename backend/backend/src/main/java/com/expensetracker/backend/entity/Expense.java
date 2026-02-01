@@ -14,10 +14,17 @@ public class Expense {
     private String title;
     private double amount;
     private LocalDate date;
+    private String notes;
+    @Column(name = "category_other")
+    private String categoryOther;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_account_id")
+    private PaymentAccount paymentAccount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -33,7 +40,15 @@ public class Expense {
 
     public LocalDate getDate() { return date; }
 
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+
+    public String getCategoryOther() { return categoryOther; }
+    public void setCategoryOther(String categoryOther) { this.categoryOther = categoryOther; }
+
     public Category getCategory() { return category; }
+
+    public PaymentAccount getPaymentAccount() { return paymentAccount; }
 
     public User getUser() { return user; }
 
@@ -44,6 +59,8 @@ public class Expense {
     public void setDate(LocalDate date) { this.date = date; }
 
     public void setCategory(Category category) { this.category = category; }
+
+    public void setPaymentAccount(PaymentAccount paymentAccount) { this.paymentAccount = paymentAccount; }
 
     public void setUser(User user) { this.user = user; }
 }

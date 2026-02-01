@@ -52,26 +52,27 @@ export default function BudgetVsExpense() {
       {
         label: "Budget",
         data: budgetValues,
-        backgroundColor: "rgba(54, 162, 235, 0.7)", // Blue
-        borderColor: "rgba(54, 162, 235, 1)",
-        borderWidth: 2
+        backgroundColor: "rgba(74, 124, 89, 0.7)",
+        borderColor: "rgba(74, 124, 89, 1)",
+        borderWidth: 2,
+        borderRadius: 8
       },
       {
         label: "Expense",
         data: expenseValues,
-        backgroundColor: "rgba(255, 99, 132, 0.7)", // Red
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 2
+        backgroundColor: "rgba(166, 93, 87, 0.7)",
+        borderColor: "rgba(166, 93, 87, 1)",
+        borderWidth: 2,
+        borderRadius: 8
       }
     ]
   };
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p className="chart-error">{error}</p>;
 
   return (
-    <div style={{ width: "700px", marginTop: "40px" }}>
-      <h3>Budget vs Expense</h3>
-      <Bar data={data} />
+    <div className="chart-wrapper">
+      <Bar data={data} options={{ responsive: true, maintainAspectRatio: true }} />
     </div>
   );
 }

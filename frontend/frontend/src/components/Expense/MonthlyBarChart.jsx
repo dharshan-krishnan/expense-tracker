@@ -50,7 +50,8 @@ export default function MonthlyBarChart() {
           {
             label: "Monthly Expenses",
             data: Object.values(monthlyTotals),
-            backgroundColor: "rgba(75,192,192,0.6)"
+            backgroundColor: "rgba(139, 90, 43, 0.7)",
+            borderRadius: 10
           }
         ]
       });
@@ -60,8 +61,12 @@ export default function MonthlyBarChart() {
     }
   };
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (!chartData) return <p>Loading monthly chart...</p>;
+  if (error) return <p className="chart-error">{error}</p>;
+  if (!chartData) return <p className="chart-loading">Loading...</p>;
 
-  return <Bar data={chartData} />;
+  return (
+    <div className="chart-wrapper">
+      <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+    </div>
+  );
 }

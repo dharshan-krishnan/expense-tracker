@@ -23,6 +23,10 @@ public class Budget {
     private Integer year;
 
     @ManyToOne
+    @JoinColumn(name = "payment_account_id")
+    private PaymentAccount paymentAccount;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -45,6 +49,9 @@ public class Budget {
     public Integer getYear() { return year; }
 
     public void setYear(Integer year) { this.year = year; }
+
+    public PaymentAccount getPaymentAccount() { return paymentAccount; }
+    public void setPaymentAccount(PaymentAccount paymentAccount) { this.paymentAccount = paymentAccount; }
 
     public User getUser() { return user; }
 

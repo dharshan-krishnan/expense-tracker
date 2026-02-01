@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { addCategory } from "../../services/categoryService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import "../Page.css";
 
 export default function AddCategory() {
   const [name, setName] = useState("");
@@ -17,20 +18,25 @@ export default function AddCategory() {
   };
 
   return (
-    <div>
-      <h2>Add Category</h2>
+    <div className="form-page">
+      <Link to="/categories" className="back-link">⬅ Back to Categories</Link>
+      <div className="form-card">
+        <h2>Add Category</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Category name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-
-        <button type="submit">Add</button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Category Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Food, Transport"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Add Category</button>
+        </form>
+      </div>
     </div>
   );
 }

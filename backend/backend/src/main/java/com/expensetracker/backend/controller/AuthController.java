@@ -1,6 +1,8 @@
 package com.expensetracker.backend.controller;
 
+import com.expensetracker.backend.entity.PaymentAccount;
 import com.expensetracker.backend.entity.User;
+import com.expensetracker.backend.repository.PaymentAccountRepository;
 import com.expensetracker.backend.repository.UserRepository;
 import com.expensetracker.backend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
@@ -18,13 +20,16 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PaymentAccountRepository paymentAccountRepository;
 
     public AuthController(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil) {
+                          JwtUtil jwtUtil,
+                          PaymentAccountRepository paymentAccountRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.paymentAccountRepository = paymentAccountRepository;
     }
 
     // ---------------- SIGNUP ----------------
@@ -49,6 +54,20 @@ public class AuthController {
         try {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
+
+            // Create default payment accounts (Cash & Bank) for new user
+            PaymentAccount cash = new PaymentAccount();
+            cash.setName("Cash");
+            cash.setInitialBalance(0.0);
+            cash.setUser(user);
+            paymentAccountRepository.save(cash);
+
+            PaymentAccount bank = new PaymentAccount();
+            bank.setName("Bank");
+            bank.setInitialBalance(0.0);
+            bank.setUser(user);
+            paymentAccountRepository.save(bank);
+
             System.out.println("User registered successfully: " + user.getEmail());
             return ResponseEntity.ok("Signup successful");
         } catch (Exception e) {

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { getPaymentAccounts } from "../../services/paymentAccountService";
 import "../Manager.css";
 
 export default function BudgetManager() {
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ category: "", amount: "", month: "", year: "" });
+  const [paymentAccounts, setPaymentAccounts] = useState([]);
+  const [form, setForm] = useState({ category: "", amount: "", month: "", year: "", paymentAccount: "" });
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -13,6 +15,7 @@ export default function BudgetManager() {
   useEffect(() => {
     loadBudgets();
     loadCategories();
+    loadPaymentAccounts();
   }, []);
 
   const loadBudgets = async () => {
@@ -44,6 +47,16 @@ export default function BudgetManager() {
     }
   };
 
+  const loadPaymentAccounts = async () => {
+    try {
+      const res = await getPaymentAccounts();
+      setPaymentAccounts(res.data || []);
+    } catch (err) {
+      console.error("Failed to load payment accounts:", err);
+      setPaymentAccounts([]);
+    }
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -67,6 +80,9 @@ export default function BudgetManager() {
         month: form.month,
         year: parseInt(form.year)
       };
+      if (form.paymentAccount) {
+        data.paymentAccount = { id: parseInt(form.paymentAccount) };
+      }
 
       if (editing) {
         await api.put(`/budgets/${editing}`, data);
@@ -74,7 +90,7 @@ export default function BudgetManager() {
         await api.post("/budgets", data);
       }
 
-      setForm({ category: "", amount: "", month: "", year: "" });
+      setForm({ category: "", amount: "", month: "", year: "", paymentAccount: "" });
       setEditing(null);
       loadBudgets();
     } catch (err) {
@@ -90,7 +106,8 @@ export default function BudgetManager() {
       category: categories.find(c => c.name === budget.category)?.id || "",
       amount: budget.amount,
       month: budget.month,
-      year: budget.year
+      year: budget.year,
+      paymentAccount: budget.paymentAccount?.id || ""
     });
     setEditing(budget.id);
   };
@@ -107,7 +124,7 @@ export default function BudgetManager() {
   };
 
   const handleCancel = () => {
-    setForm({ category: "", amount: "", month: "", year: "" });
+    setForm({ category: "", amount: "", month: "", year: "", paymentAccount: "" });
     setEditing(null);
   };
 
@@ -141,6 +158,18 @@ export default function BudgetManager() {
               <option value="">Select Category</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+            <select
+              name="paymentAccount"
+              value={form.paymentAccount}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select payment method</option>
+              {paymentAccounts.map(pa => (
+                <option key={pa.id} value={pa.id}>{pa.name}</option>
               ))}
             </select>
 
@@ -204,6 +233,7 @@ export default function BudgetManager() {
                     <div className="budget-title">{budget.category}</div>
                     <div className="budget-details">
                       <span className="month-badge">{budget.month} {budget.year}</span>
+                      <span className="payment-badge">{budget.paymentAccount?.name || "-"}</span>
                     </div>
                   </div>
                   <div className="budget-amount">₹{budget.amount.toFixed(2)}</div>

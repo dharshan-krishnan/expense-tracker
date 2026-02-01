@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByUser(User user);
+    List<Category> findByUserIsNull();
+    List<Category> findByUserOrUserIsNull(User user);
+    boolean existsByNameIgnoreCaseAndUserIsNull(String name);
 }

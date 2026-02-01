@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PieChart, Pie, Tooltip, Cell } from "recharts";
 import { getExpenseSummary } from "../../services/expenseService";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#8B5A2B", "#C7A17A", "#5C3A1A", "#A65D57", "#4A7C59", "#6B5344"];
 
 export default function ExpenseChart() {
   const [data, setData] = useState([]);
@@ -30,13 +30,11 @@ export default function ExpenseChart() {
   };
 
   return (
-    <div>
-      <h3>Expense Summary</h3>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="chart-wrapper">
+      {error && <p className="chart-error">{error}</p>}
 
       {data.length === 0 ? (
-        <p>No data</p>
+        <p className="chart-empty">No data yet</p>
       ) : (
         <PieChart width={400} height={400}>
           <Pie
