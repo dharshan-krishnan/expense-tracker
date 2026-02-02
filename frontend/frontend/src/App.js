@@ -19,6 +19,7 @@ import AddBudget from "./components/Budget/AddBudget";
 import EditBudget from "./components/Budget/EditBudget";
 
 import Reports from "./pages/Reports";
+import Feedback from "./pages/Feedback";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/budgets/edit/:id" element={<PrivateRoute><EditBudget /></PrivateRoute>} />
 
           <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
+          <Route path="/feedback" element={<PrivateRoute><Feedback /></PrivateRoute>} />
 
         </Routes>
       </BrowserRouter>

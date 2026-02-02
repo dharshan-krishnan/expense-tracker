@@ -54,6 +54,11 @@ export default function Sidebar() {
           <span className="icon">📈</span>
           <span className="label">Reports</span>
         </Link>
+
+        <Link to="/feedback" className="nav-item" title="Feedback">
+          <span className="icon">💬</span>
+          <span className="label">Feedback</span>
+        </Link>
       </nav>
 
       <div className="sidebar-footer">
