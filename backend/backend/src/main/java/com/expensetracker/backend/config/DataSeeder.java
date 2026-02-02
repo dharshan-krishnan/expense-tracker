@@ -19,8 +19,13 @@ public class DataSeeder implements CommandLineRunner {
     private final PaymentAccountRepository paymentAccountRepo;
 
     private static final List<String> DEFAULT_CATEGORIES = List.of(
-            "Food", "Transport", "Groceries", "Entertainment", "Utilities",
-            "Healthcare", "Shopping", "Others"
+            "Food",
+            "Transport",
+            "Health",
+            "Beauty",
+            "Education",
+            "Social Life",
+            "Others"
     );
 
     public DataSeeder(CategoryRepository categoryRepo, UserRepository userRepo,
