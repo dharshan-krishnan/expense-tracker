@@ -1,7 +1,7 @@
 import api from "./api";
 
-export const getBudgets = () => api.get("/budgets");
-export const getBudget = (id) => api.get(`/budgets/${id}`);
-export const addBudget = (data) => api.post("/budgets", data);
-export const updateBudget = (id, data) => api.put(`/budgets/${id}`, data);
-export const deleteBudget = (id) => api.delete(`/budgets/${id}`);
+export const getBudgets = () => api.get("/api/budgets");
+export const getBudget = (id) => api.get(`/api/budgets/${id}`);
+export const addBudget = (data) => api.post("/api/budgets", data);
+export const updateBudget = (id, data) => api.put(`/api/budgets/${id}`, data);
+export const deleteBudget = (id) => api.delete(`/api/budgets/${id}`);

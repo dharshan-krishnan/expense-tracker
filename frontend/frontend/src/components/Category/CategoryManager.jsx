@@ -15,7 +15,7 @@ export default function CategoryManager() {
 
   const loadCategories = async () => {
     try {
-      const res = await api.get("/categories");
+      const res = await api.get("/api/categories");
       if (res.data && Array.isArray(res.data)) {
         setCategories(res.data);
       } else {
@@ -45,9 +45,9 @@ export default function CategoryManager() {
 
     try {
       if (editing) {
-        await api.put(`/categories/${editing}`, form);
+        await api.put(`/api/categories/${editing}`, form);
       } else {
-        await api.post("/categories", form);
+        await api.post("/api/categories", form);
       }
 
       setForm({ name: "" });
@@ -75,7 +75,7 @@ export default function CategoryManager() {
     }
     if (window.confirm("Are you sure? This will affect related expenses and budgets.")) {
       try {
-        await api.delete(`/categories/${id}`);
+        await api.delete(`/api/categories/${id}`);
         loadCategories();
       } catch (err) {
         setError("Failed to delete category");

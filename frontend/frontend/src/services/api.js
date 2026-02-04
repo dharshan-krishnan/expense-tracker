@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const baseURL =
+  process.env.REACT_APP_API_URL ||
+  "https://expense-tracker-w0zp.onrender.com";
+
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL,
 });
 
 api.interceptors.request.use(

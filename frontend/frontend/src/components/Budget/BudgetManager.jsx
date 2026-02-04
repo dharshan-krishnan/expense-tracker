@@ -20,7 +20,7 @@ export default function BudgetManager() {
 
   const loadBudgets = async () => {
     try {
-      const res = await api.get("/budgets");
+      const res = await api.get("/api/budgets");
       if (res.data && Array.isArray(res.data)) {
         setBudgets(res.data);
       } else {
@@ -35,7 +35,7 @@ export default function BudgetManager() {
 
   const loadCategories = async () => {
     try {
-      const res = await api.get("/categories");
+      const res = await api.get("/api/categories");
       if (res.data && Array.isArray(res.data)) {
         setCategories(res.data);
       } else {
@@ -85,9 +85,9 @@ export default function BudgetManager() {
       }
 
       if (editing) {
-        await api.put(`/budgets/${editing}`, data);
+        await api.put(`/api/budgets/${editing}`, data);
       } else {
-        await api.post("/budgets", data);
+        await api.post("/api/budgets", data);
       }
 
       setForm({ category: "", amount: "", month: "", year: "", paymentAccount: "" });
@@ -115,7 +115,7 @@ export default function BudgetManager() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await api.delete(`/budgets/${id}`);
+        await api.delete(`/api/budgets/${id}`);
         loadBudgets();
       } catch (err) {
         setError("Failed to delete budget");

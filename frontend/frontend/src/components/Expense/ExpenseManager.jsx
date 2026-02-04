@@ -27,7 +27,7 @@ export default function ExpenseManager() {
 
   const loadExpenses = async () => {
     try {
-      const res = await api.get("/expenses");
+      const res = await api.get("/api/expenses");
       if (res.data && Array.isArray(res.data)) {
         setExpenses(res.data);
       } else {
@@ -42,7 +42,7 @@ export default function ExpenseManager() {
 
   const loadCategories = async () => {
     try {
-      const res = await api.get("/categories");
+      const res = await api.get("/api/categories");
       const data = res.data && Array.isArray(res.data) ? res.data : [];
       setCategories(data.sort((a, b) => (a.isDefault ? 0 : 1) - (b.isDefault ? 0 : 1)));
     } catch (err) {
@@ -100,11 +100,6 @@ export default function ExpenseManager() {
         data.categoryOther = form.categoryOther.trim();
       }
 
-      if (editing) {
-        await api.put(`/expenses/${editing}`, data);
-      } else {
-        await api.post("/expenses", data);
-      }
 
       setForm({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
       setEditing(null);
@@ -133,7 +128,7 @@ export default function ExpenseManager() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await api.delete(`/expenses/${id}`);
+        await api.delete(`/api/expenses/${id}`);
         loadExpenses();
       } catch (err) {
         setError("Failed to delete expense");

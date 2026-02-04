@@ -32,7 +32,7 @@ export default function Reports() {
     try {
       setLoading(true);
       setError("");
-      const res = await api.get("/expenses");
+      const res = await api.get("/api/expenses");
       setExpenses(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load expenses:", err);
@@ -292,7 +292,7 @@ export default function Reports() {
                         const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : 0;
                         return (
                           <tr key={cat}>
-                            <td>{cat}</td>
+                            <td>- {cat}</td>
                             <td>₹{amt.toFixed(2)}</td>
                             <td>{pct}%</td>
                           </tr>

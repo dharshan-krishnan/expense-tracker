@@ -27,7 +27,7 @@ export default function Login() {
     }
 
     try {
-      const res = await api.post("/auth/login", form);
+      const res = await api.post("/api/auth/login", form);
       
       if (res.status === 200 && res.data) {
         let token, username;

@@ -1,17 +1,17 @@
 import api from "./api";
 
-export const getExpenses = () => api.get("/expenses");
+export const getExpenses = () => api.get("/api/expenses");
 
-export const addExpense = (expense) => api.post("/expenses", expense);
+export const addExpense = (expense) => api.post("/api/expenses", expense);
 
 export const deleteExpense = (id) =>
-  api.delete(`/expenses/${id}`);
+  api.delete(`/api/expenses/${id}`);
 
 export const getExpenseById = (id) =>
-  api.get(`/expenses/${id}`);
+  api.get(`/api/expenses/${id}`);
 
 export const updateExpense = (id, expense) =>
-  api.put(`/expenses/${id}`, expense);
+  api.put(`/api/expenses/${id}`, expense);
 
 export const getExpenseSummary = () =>
-  api.get("/expenses/summary");
+  api.get("/api/expenses/summary");
