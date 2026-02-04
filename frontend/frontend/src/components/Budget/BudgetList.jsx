@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../services/api";
 import EditBudget from "./EditBudget";
@@ -11,19 +11,24 @@ export default function BudgetList() {
   const [year, setYear] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sortBy, setSortBy] = useState({ key: 'amount', dir: 'desc' });
+  const [sortBy, setSortBy] = useState({ key: "amount", dir: "desc" });
   const navigate = useNavigate();
 
-  const load = async () => {
+  // -----------------------------
+  // Memoized load() for ESLint
+  // -----------------------------
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+
       const url =
         month && year
           ? `/api/budgets/filter?month=${month}&year=${year}`
           : "/api/budgets";
 
       const res = await api.get(url);
+
       if (Array.isArray(res.data)) {
         setBudgets(res.data);
       } else {
@@ -36,7 +41,7 @@ export default function BudgetList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [month, year]);
 
   const handleDelete = async (id) => {
     try {
@@ -48,24 +53,30 @@ export default function BudgetList() {
     }
   };
 
+  // -----------------------------
+  // useEffect — fixed dependency
+  // -----------------------------
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const sorted = useMemo(() => {
     const list = [...budgets];
     list.sort((a, b) => {
       const key = sortBy.key;
-      if (key === 'amount') {
-        return sortBy.dir === 'asc' ? a.amount - b.amount : b.amount - a.amount;
+
+      if (key === "amount") {
+        return sortBy.dir === "asc" ? a.amount - b.amount : b.amount - a.amount;
       }
-      if (key === 'category') {
-        const av = (a.category || '').toLowerCase();
-        const bv = (b.category || '').toLowerCase();
-        if (av < bv) return sortBy.dir === 'asc' ? -1 : 1;
-        if (av > bv) return sortBy.dir === 'asc' ? 1 : -1;
+
+      if (key === "category") {
+        const av = (a.category || "").toLowerCase();
+        const bv = (b.category || "").toLowerCase();
+        if (av < bv) return sortBy.dir === "asc" ? -1 : 1;
+        if (av > bv) return sortBy.dir === "asc" ? 1 : -1;
         return 0;
       }
+
       return 0;
     });
     return list;
@@ -92,7 +103,9 @@ export default function BudgetList() {
       )}
 
       <div className="page-actions">
-        <button onClick={() => navigate('/budgets/add')} className="btn-primary">+ Add Budget</button>
+        <button onClick={() => navigate("/budgets/add")} className="btn-primary">
+          + Add Budget
+        </button>
         <span className="page-summary">Total: {budgets.length} budgets</span>
       </div>
 
@@ -104,12 +117,14 @@ export default function BudgetList() {
           <option>July</option><option>August</option><option>September</option>
           <option>October</option><option>November</option><option>December</option>
         </select>
+
         <input
           type="number"
           placeholder="Year"
           value={year}
           onChange={(e) => setYear(e.target.value)}
         />
+
         <button onClick={load} disabled={loading}>
           {loading ? "Loading..." : "Filter"}
         </button>
@@ -125,14 +140,21 @@ export default function BudgetList() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th onClick={() => toggleSort('category')}>Category {sortBy.key === 'category' ? (sortBy.dir === 'asc' ? '▲' : '▼') : ''}</th>
+                  <th onClick={() => toggleSort("category")}>
+                    Category{" "}
+                    {sortBy.key === "category" ? (sortBy.dir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th>Payment</th>
-                  <th onClick={() => toggleSort('amount')}>Amount {sortBy.key === 'amount' ? (sortBy.dir === 'asc' ? '▲' : '▼') : ''}</th>
+                  <th onClick={() => toggleSort("amount")}>
+                    Amount{" "}
+                    {sortBy.key === "amount" ? (sortBy.dir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th>Month</th>
                   <th>Year</th>
                   <th>Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {sorted.map((b) => (
                   <tr key={b.id}>
@@ -142,8 +164,12 @@ export default function BudgetList() {
                     <td>{b.month}</td>
                     <td>{b.year}</td>
                     <td>
-                      <button onClick={() => setEditing(b)} className="edit-btn">Edit</button>
-                      <button onClick={() => handleDelete(b.id)} className="delete-btn">Delete</button>
+                      <button onClick={() => setEditing(b)} className="edit-btn">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(b.id)} className="delete-btn">
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

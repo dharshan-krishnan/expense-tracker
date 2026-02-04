@@ -5,13 +5,21 @@ import "./Auth.css";
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,16 +46,15 @@ export default function Signup() {
     }
 
     try {
-      const response = await api.post("/api/auth/signup", {
+      await api.post("/api/auth/signup", {
         username: form.username,
         email: form.email,
-        password: form.password,
+        password: form.password
       });
+
       setSuccess("Account created! Redirecting to login...");
-      setError("");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      setTimeout(() => navigate("/login"), 1500);
+
     } catch (err) {
       setError(err.response?.data || "Signup failed. Please try again.");
     } finally {
@@ -77,49 +84,49 @@ export default function Signup() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Username</label>
-            <input 
-              name="username" 
-              type="text" 
-              placeholder="john_doe" 
+            <input
+              name="username"
+              type="text"
+              placeholder="john_doe"
               value={form.username}
               onChange={handleChange}
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label>Email Address</label>
-            <input 
-              name="email" 
-              type="email" 
-              placeholder="you@example.com" 
+            <input
+              name="email"
+              type="email"
+              placeholder="you@example.com"
               value={form.email}
               onChange={handleChange}
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label>Password</label>
-            <input 
-              name="password" 
-              type="password" 
-              placeholder="••••••••" 
+            <input
+              name="password"
+              type="password"
+              placeholder="••••••••"
               value={form.password}
               onChange={handleChange}
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label>Confirm Password</label>
-            <input 
-              name="confirmPassword" 
-              type="password" 
-              placeholder="••••••••" 
+            <input
+              name="confirmPassword"
+              type="password"
+              placeholder="••••••••"
               value={form.confirmPassword}
               onChange={handleChange}
-              required 
+              required
             />
           </div>
 

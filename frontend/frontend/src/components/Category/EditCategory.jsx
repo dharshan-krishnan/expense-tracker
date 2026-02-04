@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { updateCategory, getCategories } from "../../services/categoryService";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "../Page.css";
@@ -8,21 +8,23 @@ export default function EditCategory() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
+  // Memoized for ESLint compliance
+  const loadCategory = useCallback(async () => {
+    const res = await getCategories();
+    const category = res.data.find(
+      (c) => c.id === id || c.id === String(id)
+    );
+
+    if (category) setName(category.name);
+  }, [id]);
+
   useEffect(() => {
     loadCategory();
-  }, []);
-
-  const loadCategory = async () => {
-    const res = await getCategories();
-    const category = res.data.find((c) => c.id === id || c.id === String(id));
-    if (category) setName(category.name);
-  };
+  }, [loadCategory]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     await updateCategory(id, { name });
-
     navigate("/categories");
   };
 

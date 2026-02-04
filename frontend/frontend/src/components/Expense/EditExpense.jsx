@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getExpenseById, updateExpense } from "../../services/expenseService";
 import { getCategories } from "../../services/categoryService";
@@ -22,20 +22,11 @@ export default function EditExpense() {
     notes: ""
   });
 
-  useEffect(() => {
-    loadExpense();
-    loadCategories();
-    loadPaymentAccounts();
-  }, []);
+  // -----------------------------
+  // FIXED: useCallback for ESLint
+  // -----------------------------
 
-  useEffect(() => {
-    if (paymentAccounts.length === 0) {
-      const t = setTimeout(() => loadPaymentAccounts(), 2000);
-      return () => clearTimeout(t);
-    }
-  }, [paymentAccounts.length]);
-
-  const loadExpense = async () => {
+  const loadExpense = useCallback(async () => {
     try {
       const res = await getExpenseById(id);
       const exp = res.data;
@@ -52,36 +43,57 @@ export default function EditExpense() {
     } catch (e) {
       console.error("Failed to load expense", e);
     }
-  };
+  }, [id]);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     const res = await getCategories();
     setCategories((res.data || []).sort((a, b) => (a.isDefault ? 0 : 1) - (b.isDefault ? 0 : 1)));
-  };
+  }, []);
 
-  const loadPaymentAccounts = async () => {
+  const loadPaymentAccounts = useCallback(async () => {
     try {
       let res = await getPaymentAccounts();
       let accounts = res.data || [];
+
       if (accounts.length === 0) {
         try {
           res = await ensurePaymentDefaults();
           accounts = res.data || [];
         } catch (_) {}
       }
+
       setPaymentAccounts(accounts);
     } catch (err) {
       console.error("Failed to load payment accounts:", err);
       setPaymentAccounts([]);
     }
-  };
+  }, []);
+
+  // -----------------------------
+  // FIXED: useEffect dependencies
+  // -----------------------------
+
+  useEffect(() => {
+    loadExpense();
+    loadCategories();
+    loadPaymentAccounts();
+  }, [loadExpense, loadCategories, loadPaymentAccounts]);
+
+  useEffect(() => {
+    if (paymentAccounts.length === 0) {
+      const t = setTimeout(() => loadPaymentAccounts(), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [paymentAccounts.length, loadPaymentAccounts]);
 
   const handleChange = (e) => {
     setExpense({ ...expense, [e.target.name]: e.target.value });
   };
 
   const isOthersSelected = () => {
-    const cat = categories.find(c => c.id === expense.categoryId || c.id === String(expense.categoryId));
+    const cat = categories.find(
+      (c) => c.id === expense.categoryId || c.id === String(expense.categoryId)
+    );
     return cat?.name?.toLowerCase() === "others";
   };
 
@@ -95,9 +107,11 @@ export default function EditExpense() {
       category: { id: expense.categoryId },
       notes: expense.notes || null
     };
+
     if (expense.paymentAccountId) {
       payload.paymentAccount = { id: expense.paymentAccountId };
     }
+
     if (isOthersSelected() && expense.categoryOther?.trim()) {
       payload.categoryOther = expense.categoryOther.trim();
     }
@@ -124,6 +138,7 @@ export default function EditExpense() {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Amount</label>
             <input
@@ -136,6 +151,7 @@ export default function EditExpense() {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Date</label>
             <input
@@ -146,6 +162,7 @@ export default function EditExpense() {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Category</label>
             <select
@@ -160,6 +177,7 @@ export default function EditExpense() {
               ))}
             </select>
           </div>
+
           {isOthersSelected() && (
             <div className="form-group">
               <label>Specify (optional)</label>
@@ -172,18 +190,28 @@ export default function EditExpense() {
               />
             </div>
           )}
+
           <div className="form-group">
             <label>Payment Method</label>
-            <select name="paymentAccountId" value={expense.paymentAccountId} onChange={handleChange} required>
+            <select
+              name="paymentAccountId"
+              value={expense.paymentAccountId}
+              onChange={handleChange}
+              required
+            >
               <option value="">Select payment method</option>
               {paymentAccounts.map((pa) => (
                 <option key={pa.id} value={pa.id}>{pa.name}</option>
               ))}
             </select>
+
             {paymentAccounts.length === 0 && (
-              <span className="form-hint">Cash and Bank will appear after loading. Refresh if needed.</span>
+              <span className="form-hint">
+                Cash and Bank will appear after loading. Refresh if needed.
+              </span>
             )}
           </div>
+
           <div className="form-group">
             <label>Note</label>
             <textarea
@@ -194,6 +222,7 @@ export default function EditExpense() {
               rows={3}
             />
           </div>
+
           <div className="form-buttons-row">
             <button type="submit">Update Expense</button>
             <Link to="/expenses" className="btn-secondary">Cancel</Link>
