@@ -20,8 +20,8 @@ export default function BudgetList() {
       setError("");
       const url =
         month && year
-          ? `/budgets/filter?month=${month}&year=${year}`
-          : "/budgets";
+          ? `/api/budgets/filter?month=${month}&year=${year}`
+          : "/api/budgets";
 
       const res = await api.get(url);
       if (Array.isArray(res.data)) {
@@ -40,7 +40,7 @@ export default function BudgetList() {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/budgets/${id}`);
+      await api.delete(`/api/budgets/${id}`);
       load();
     } catch (err) {
       console.error("Delete failed:", err);

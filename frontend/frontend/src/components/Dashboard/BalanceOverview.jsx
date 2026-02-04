@@ -30,7 +30,7 @@ export default function BalanceOverview() {
     try {
       setLoading(true);
       setError("");
-      const res = await api.get("/dashboard/summary");
+      const res = await api.get("/api/dashboard/summary");
       setSummary(res.data);
     } catch (err) {
       console.error("Failed to load dashboard summary:", err);

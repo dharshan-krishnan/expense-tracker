@@ -38,7 +38,11 @@ export default function Signup() {
     }
 
     try {
-      const response = await api.post("/auth/signup", { username: form.username, email: form.email, password: form.password });
+      const response = await api.post("/api/auth/signup", {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+      });
       setSuccess("Account created! Redirecting to login...");
       setError("");
       setTimeout(() => {

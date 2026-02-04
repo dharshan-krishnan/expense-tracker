@@ -23,8 +23,8 @@ export default function BudgetVsExpense() {
 
   const load = async () => {
     try {
-      const bRes = await api.get("/budgets");
-      const eRes = await api.get("/expenses");
+      const bRes = await api.get("/api/budgets");
+      const eRes = await api.get("/api/expenses");
       
       setBudgets(Array.isArray(bRes.data) ? bRes.data : []);
       setExpenses(Array.isArray(eRes.data) ? eRes.data : []);

@@ -23,7 +23,7 @@ export default function MonthlyBarChart() {
 
   const loadMonthlyData = async () => {
     try {
-      const res = await api.get("/expenses");
+      const res = await api.get("/api/expenses");
       const expenses = Array.isArray(res.data) ? res.data : [];
 
       if (expenses.length === 0) {
