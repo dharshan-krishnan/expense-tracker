@@ -1,9 +1,0 @@
-{
-  "//": "Vercel config for Create React App single-page app",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ]
-}
