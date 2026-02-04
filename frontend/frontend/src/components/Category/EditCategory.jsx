@@ -14,7 +14,7 @@ export default function EditCategory() {
 
   const loadCategory = async () => {
     const res = await getCategories();
-    const category = res.data.find((c) => c.id === parseInt(id));
+    const category = res.data.find((c) => c.id === id || c.id === String(id));
     if (category) setName(category.name);
   };
 

@@ -11,9 +11,9 @@ public interface BudgetService {
 
     List<Budget> getAllByUser(User user);
 
-    Budget update(Long id, Budget budget);
+    Budget update(String id, Budget budget);
 
-    void delete(Long id);
+    void delete(String id);
 
     List<Budget> filter(User user, String month, Integer year);
 }

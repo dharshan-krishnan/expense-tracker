@@ -53,7 +53,7 @@ public class PaymentAccountServiceImpl implements PaymentAccountService {
     }
 
     @Override
-    public PaymentAccount update(Long id, Double initialBalance, User user) {
+    public PaymentAccount update(String id, Double initialBalance, User user) {
         PaymentAccount acc = accountRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Payment account not found"));
         if (!acc.getUser().getId().equals(user.getId())) {
@@ -67,7 +67,7 @@ public class PaymentAccountServiceImpl implements PaymentAccountService {
     public double getBalance(PaymentAccount account, User user) {
         if (account == null) return 0;
         double spent = expenseRepo.findByUser(user).stream()
-                .filter(e -> e.getPaymentAccount() != null && e.getPaymentAccount().getId().equals(account.getId()))
+                .filter(e -> e.getPaymentAccount() != null && account.getId().equals(e.getPaymentAccount().getId()))
                 .mapToDouble(Expense::getAmount)
                 .sum();
         return (account.getInitialBalance() != null ? account.getInitialBalance() : 0) - spent;

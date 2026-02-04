@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category update(Long id, Category category) {
+    public Category update(String id, Category category) {
         Category cat = repo.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
         if (Boolean.TRUE.equals(cat.getIsDefault())) {
             throw new RuntimeException("Cannot edit default category");
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String id) {
         if (id != null) {
             Category cat = repo.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
             if (Boolean.TRUE.equals(cat.getIsDefault())) {

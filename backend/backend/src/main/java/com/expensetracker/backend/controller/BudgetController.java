@@ -47,13 +47,13 @@ public class BudgetController {
     }
 
     @PutMapping("/{id}")
-    public Budget update(@PathVariable Long id, @RequestBody Budget budget) {
+    public Budget update(@PathVariable String id, @RequestBody Budget budget) {
         budget.setUser(getLoggedInUser());
         return service.update(id, budget);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable String id) {
         service.delete(id);
     }
 }
