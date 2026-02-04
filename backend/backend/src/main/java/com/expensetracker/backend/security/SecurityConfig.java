@@ -47,22 +47,22 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        // Allow all origins (including Vercel deployments and localhost)
-        config.addAllowedOriginPattern("*");
-        // Allow all headers (including Authorization for JWT)
-        config.addAllowedHeader("*");
-        // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
-        config.addAllowedMethod("*");
-        // We use Authorization header with Bearer token, not cookies
-        config.setAllowCredentials(false);
-        // Allow preflight requests to be cached for 1 hour
-        config.setMaxAge(3600L);
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+    // Your frontend domains
+    config.addAllowedOrigin("https://expense-tracker-wine-tau.vercel.app");
+    config.addAllowedOrigin("http://localhost:3000");
+
+    config.addAllowedHeader("*");  // Allow all request headers
+    config.addAllowedMethod("*");  // Allow GET, POST, PUT, DELETE, OPTIONS
+    config.setAllowCredentials(true); // Allow Authorization header (Bearer token)
+    config.setMaxAge(3600L); // Cache preflight
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+
+    return source;
+}
 
 }
