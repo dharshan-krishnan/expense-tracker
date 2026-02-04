@@ -1,38 +1,36 @@
 package com.expensetracker.backend.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "expenses")
+@Document(collection = "expenses")
 public class Expense {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String title;
     private double amount;
     private LocalDate date;
     private String notes;
-    @Column(name = "category_other")
     private String categoryOther;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
+    @DBRef
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_account_id")
+    @DBRef
     private PaymentAccount paymentAccount;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @DBRef
     private User user;
 
     public Expense() {}
 
-    public Long getId() { return id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getTitle() { return title; }
 

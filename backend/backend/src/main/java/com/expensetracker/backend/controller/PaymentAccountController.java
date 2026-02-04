@@ -59,7 +59,7 @@ public class PaymentAccountController {
     }
 
     @PutMapping("/{id}")
-    public PaymentAccount updateBalance(@PathVariable Long id, @RequestBody Map<String, Double> body) {
+    public PaymentAccount updateBalance(@PathVariable String id, @RequestBody Map<String, Double> body) {
         Double initialBalance = body != null ? body.get("initialBalance") : null;
         return service.update(id, initialBalance, getLoggedInUser());
     }

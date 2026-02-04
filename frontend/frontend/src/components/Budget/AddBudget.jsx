@@ -45,7 +45,7 @@ export default function AddBudget() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const cat = categories.find((c) => c.id === parseInt(budget.categoryId));
+    const cat = categories.find((c) => c.id === budget.categoryId || c.id === String(budget.categoryId));
     const payload = {
       category: cat?.name ?? budget.categoryId,
       amount: Number(budget.amount),
@@ -53,7 +53,7 @@ export default function AddBudget() {
       year: Number(budget.year)
     };
     if (budget.paymentAccountId) {
-      payload.paymentAccount = { id: Number(budget.paymentAccountId) };
+      payload.paymentAccount = { id: budget.paymentAccountId };
     }
     await addBudget(payload);
 

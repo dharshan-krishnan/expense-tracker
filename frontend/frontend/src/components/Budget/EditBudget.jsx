@@ -31,7 +31,7 @@ export default function EditBudget({ data, onClose }) {
     try {
       const payload = { category, amount, month, year };
       if (paymentAccountId) {
-        payload.paymentAccount = { id: Number(paymentAccountId) };
+        payload.paymentAccount = { id: paymentAccountId };
       }
       await api.put(`/budgets/${data.id}`, payload);
       onClose();

@@ -73,7 +73,7 @@ export default function BudgetManager() {
     }
 
     try {
-      const categoryObj = categories.find(c => c.id === parseInt(form.category));
+      const categoryObj = categories.find(c => c.id === form.category || c.id === String(form.category));
       const data = {
         category: categoryObj.name,
         amount: parseFloat(form.amount),
@@ -81,7 +81,7 @@ export default function BudgetManager() {
         year: parseInt(form.year)
       };
       if (form.paymentAccount) {
-        data.paymentAccount = { id: parseInt(form.paymentAccount) };
+        data.paymentAccount = { id: form.paymentAccount };
       }
 
       if (editing) {

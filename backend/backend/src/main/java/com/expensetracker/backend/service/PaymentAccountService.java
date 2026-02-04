@@ -11,7 +11,7 @@ public interface PaymentAccountService {
 
     PaymentAccount getOrCreateDefaults(User user);
 
-    PaymentAccount update(Long id, Double initialBalance, User user);
+    PaymentAccount update(String id, Double initialBalance, User user);
 
     double getBalance(PaymentAccount account, User user);
 }

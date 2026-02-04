@@ -1,44 +1,34 @@
 package com.expensetracker.backend.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "feedbacks")
+@Document(collection = "feedbacks")
 public class Feedback {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     private Integer rating;
-
-    @Column(nullable = false)
     private String category;
-
-    @Column(columnDefinition = "TEXT")
     private String comments;
-
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "contact_number")
     private String contactNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @DBRef
     private User user;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Feedback() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public Integer getRating() { return rating; }
     public void setRating(Integer rating) { this.rating = rating; }

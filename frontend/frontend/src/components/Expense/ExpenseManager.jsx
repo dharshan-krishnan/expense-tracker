@@ -84,7 +84,7 @@ export default function ExpenseManager() {
     }
 
     try {
-      const categoryObj = categories.find(c => c.id === parseInt(form.category));
+      const categoryObj = categories.find(c => c.id === form.category || c.id === String(form.category));
       const data = {
         title: form.title,
         amount: parseFloat(form.amount),
@@ -93,7 +93,7 @@ export default function ExpenseManager() {
         notes: form.notes || null
       };
       if (form.paymentAccount) {
-        data.paymentAccount = { id: parseInt(form.paymentAccount) };
+        data.paymentAccount = { id: form.paymentAccount };
       }
       const catName = categoryObj?.name?.toLowerCase();
       if (catName === "others" && form.categoryOther?.trim()) {
@@ -201,7 +201,7 @@ export default function ExpenseManager() {
               ))}
             </select>
 
-            {form.category && categories.find(c => c.id === parseInt(form.category))?.name?.toLowerCase() === "others" && (
+            {form.category && categories.find(c => c.id === form.category || c.id === String(form.category))?.name?.toLowerCase() === "others" && (
               <input
                 type="text"
                 name="categoryOther"

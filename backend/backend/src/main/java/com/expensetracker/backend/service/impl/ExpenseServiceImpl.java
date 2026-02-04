@@ -8,7 +8,8 @@ import com.expensetracker.backend.repository.PaymentAccountRepository;
 import com.expensetracker.backend.service.ExpenseService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
@@ -40,13 +41,13 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public Expense getExpenseById(Long id) {
+    public Expense getExpenseById(String id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
     }
 
     @Override
-    public Expense updateExpense(Long id, Expense expense) {
+    public Expense updateExpense(String id, Expense expense) {
         Expense e = getExpenseById(id);
         User user = e.getUser();
 
@@ -71,7 +72,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public void deleteExpense(Long id) {
+    public void deleteExpense(String id) {
         if (id != null) {
             repo.deleteById(id);
         }
@@ -79,6 +80,14 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<Object[]> getExpenseSummaryByUser(User user) {
-        return repo.expenseSummaryByUser(user);
+        List<Expense> expenses = repo.findByUser(user);
+        Map<String, Double> byCategory = new LinkedHashMap<>();
+        for (Expense e : expenses) {
+            String catName = (e.getCategory() != null) ? e.getCategory().getName() : "Others";
+            byCategory.merge(catName, e.getAmount(), Double::sum);
+        }
+        return byCategory.entrySet().stream()
+                .map(entry -> new Object[]{ entry.getKey(), entry.getValue() })
+                .collect(Collectors.toList());
     }
 }

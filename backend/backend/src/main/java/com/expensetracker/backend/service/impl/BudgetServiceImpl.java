@@ -40,7 +40,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public Budget update(Long id, Budget updated) {
+    public Budget update(String id, Budget updated) {
         Budget b = repo.findById(id).orElseThrow(() -> new RuntimeException("Budget not found"));
         User user = b.getUser();
 
@@ -63,7 +63,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String id) {
         if (id != null) {
             repo.deleteById(id);
         }

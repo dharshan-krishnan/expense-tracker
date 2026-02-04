@@ -1,38 +1,29 @@
 package com.expensetracker.backend.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "budgets")
+@Document(collection = "budgets")
 public class Budget {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     private String category;
-
-    @Column(nullable = false)
     private Double amount;
-
-    @Column(nullable = false)
     private String month;
-
-    @Column(nullable = false)
     private Integer year;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_account_id")
+    @DBRef
     private PaymentAccount paymentAccount;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @DBRef
     private User user;
 
-    public Long getId() { return id; }
+    public String getId() { return id; }
 
-    public void setId(Long id) { this.id = id; }
+    public void setId(String id) { this.id = id; }
 
     public String getCategory() { return category; }
 

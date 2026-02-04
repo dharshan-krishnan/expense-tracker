@@ -81,7 +81,7 @@ export default function EditExpense() {
   };
 
   const isOthersSelected = () => {
-    const cat = categories.find(c => c.id === Number(expense.categoryId));
+    const cat = categories.find(c => c.id === expense.categoryId || c.id === String(expense.categoryId));
     return cat?.name?.toLowerCase() === "others";
   };
 
@@ -96,7 +96,7 @@ export default function EditExpense() {
       notes: expense.notes || null
     };
     if (expense.paymentAccountId) {
-      payload.paymentAccount = { id: Number(expense.paymentAccountId) };
+      payload.paymentAccount = { id: expense.paymentAccountId };
     }
     if (isOthersSelected() && expense.categoryOther?.trim()) {
       payload.categoryOther = expense.categoryOther.trim();

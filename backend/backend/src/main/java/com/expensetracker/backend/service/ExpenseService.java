@@ -11,11 +11,11 @@ public interface ExpenseService {
 
     List<Expense> getAllByUser(User user);
 
-    Expense getExpenseById(Long id);
+    Expense getExpenseById(String id);
 
-    Expense updateExpense(Long id, Expense expense);
+    Expense updateExpense(String id, Expense expense);
 
-    void deleteExpense(Long id);
+    void deleteExpense(String id);
 
     List<Object[]> getExpenseSummaryByUser(User user);
 }
