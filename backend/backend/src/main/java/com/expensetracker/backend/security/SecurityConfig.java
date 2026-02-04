@@ -12,6 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +30,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
                 .requestMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -47,12 +49,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // We use Authorization header with Bearer token, not cookies,
-        // so we don't need credentials here. This allows a wildcard origin.
-        config.setAllowCredentials(false);
+        // Allow all origins (including Vercel deployments and localhost)
         config.addAllowedOriginPattern("*");
+        // Allow all headers (including Authorization for JWT)
         config.addAllowedHeader("*");
+        // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
         config.addAllowedMethod("*");
+        // We use Authorization header with Bearer token, not cookies
+        config.setAllowCredentials(false);
+        // Allow preflight requests to be cached for 1 hour
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
