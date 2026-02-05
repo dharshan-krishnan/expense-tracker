@@ -85,21 +85,31 @@ export default function ExpenseManager() {
 
     try {
       const categoryObj = categories.find(c => c.id === form.category || c.id === String(form.category));
+      if (!categoryObj) {
+        setError("Please select a valid category");
+        setLoading(false);
+        return;
+      }
       const data = {
         title: form.title,
         amount: parseFloat(form.amount),
         date: form.date,
-        category: categoryObj,
+        category: { id: categoryObj.id },
         notes: form.notes || null
       };
       if (form.paymentAccount) {
         data.paymentAccount = { id: form.paymentAccount };
       }
-      const catName = categoryObj?.name?.toLowerCase();
+      const catName = categoryObj.name?.toLowerCase();
       if (catName === "others" && form.categoryOther?.trim()) {
         data.categoryOther = form.categoryOther.trim();
       }
 
+      if (editing) {
+        await api.put(`/api/expenses/${editing}`, data);
+      } else {
+        await api.post("/api/expenses", data);
+      }
 
       setForm({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
       setEditing(null);
@@ -210,7 +220,7 @@ export default function ExpenseManager() {
               name="paymentAccount"
               value={form.paymentAccount}
               onChange={handleChange}
-              required
+              required={paymentAccounts.length > 0}
             >
               <option value="">Select payment method</option>
               {paymentAccounts.map(pa => (
@@ -218,7 +228,7 @@ export default function ExpenseManager() {
               ))}
             </select>
             {paymentAccounts.length === 0 && (
-              <span className="form-hint">Cash and Bank will appear after loading.</span>
+              <span className="form-hint">Cash and Bank will appear after loading. You can still add an expense without selecting one.</span>
             )}
 
             <input
