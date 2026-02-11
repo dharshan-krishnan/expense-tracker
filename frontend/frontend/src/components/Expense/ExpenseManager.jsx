@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { getPaymentAccounts, ensurePaymentDefaults } from "../../services/paymentAccountService";
+import Modal from "../Shared/Modal";
+import ConfirmModal from "../Shared/ConfirmModal";
 import "../Manager.css";
 
 export default function ExpenseManager() {
@@ -11,6 +13,13 @@ export default function ExpenseManager() {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     loadExpenses();
@@ -77,8 +86,38 @@ export default function ExpenseManager() {
     setError("");
     setLoading(true);
 
-    if (!form.title || !form.amount || !form.date || !form.category) {
-      setError("All fields are required");
+    // Validation
+    if (!form.title?.trim()) {
+      setErrorMessage("Expense title is required");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.amount || form.amount <= 0) {
+      setErrorMessage("Amount must be greater than 0");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
+      setErrorMessage("Please enter a valid positive amount");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.date) {
+      setErrorMessage("Date is required");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.category) {
+      setErrorMessage("Please select a category");
+      setShowErrorModal(true);
       setLoading(false);
       return;
     }
@@ -86,16 +125,17 @@ export default function ExpenseManager() {
     try {
       const categoryObj = categories.find(c => c.id === form.category || c.id === String(form.category));
       if (!categoryObj) {
-        setError("Please select a valid category");
+        setErrorMessage("Please select a valid category");
+        setShowErrorModal(true);
         setLoading(false);
         return;
       }
       const data = {
-        title: form.title,
+        title: form.title.trim(),
         amount: parseFloat(form.amount),
         date: form.date,
         category: { id: categoryObj.id },
-        notes: form.notes || null
+        notes: form.notes?.trim() || null
       };
       if (form.paymentAccount) {
         data.paymentAccount = { id: form.paymentAccount };
@@ -107,15 +147,18 @@ export default function ExpenseManager() {
 
       if (editing) {
         await api.put(`/api/expenses/${editing}`, data);
+        setShowSuccessModal(true);
       } else {
         await api.post("/api/expenses", data);
+        setShowSuccessModal(true);
       }
 
       setForm({ title: "", amount: "", date: "", category: "", categoryOther: "", paymentAccount: "", notes: "" });
       setEditing(null);
       loadExpenses();
     } catch (err) {
-      setError("Failed to save expense");
+      setErrorMessage(err.response?.data || "Failed to save expense. Please try again.");
+      setShowErrorModal(true);
       console.error(err);
     } finally {
       setLoading(false);
@@ -135,14 +178,24 @@ export default function ExpenseManager() {
     setEditing(expense.id);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await api.delete(`/api/expenses/${id}`);
-        loadExpenses();
-      } catch (err) {
-        setError("Failed to delete expense");
-      }
+  const handleDeleteClick = (id) => {
+    const expense = expenses.find(e => e.id === id);
+    setExpenseToDelete({ id, title: expense?.title || "this expense" });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!expenseToDelete) return;
+    
+    try {
+      await api.delete(`/api/expenses/${expenseToDelete.id}`);
+      loadExpenses();
+      setShowDeleteModal(false);
+      setExpenseToDelete(null);
+    } catch (err) {
+      setErrorMessage(err.response?.data || "Failed to delete expense. Please try again.");
+      setShowErrorModal(true);
+      setShowDeleteModal(false);
     }
   };
 
@@ -284,7 +337,7 @@ export default function ExpenseManager() {
                     </button>
                     <button 
                       className="delete-btn"
-                      onClick={() => handleDelete(exp.id)}
+                      onClick={() => handleDeleteClick(exp.id)}
                       title="Delete"
                     >
                       🗑️
@@ -296,6 +349,47 @@ export default function ExpenseManager() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setExpenseToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Expense"
+        message={`Are you sure you want to delete "${expenseToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+        type="success"
+      >
+        <p>{editing ? "Expense updated successfully!" : "Expense added successfully!"}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowSuccessModal(false)}>OK</button>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

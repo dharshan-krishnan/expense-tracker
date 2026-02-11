@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import Modal from "../Shared/Modal";
+import ConfirmModal from "../Shared/ConfirmModal";
 import "../Manager.css";
 
 export default function CategoryManager() {
@@ -8,6 +10,13 @@ export default function CategoryManager() {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     loadCategories();
@@ -38,7 +47,15 @@ export default function CategoryManager() {
     setLoading(true);
 
     if (!form.name.trim()) {
-      setError("Category name is required");
+      setErrorMessage("Category name is required");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (form.name.trim().length > 50) {
+      setErrorMessage("Category name must be 50 characters or less");
+      setShowErrorModal(true);
       setLoading(false);
       return;
     }
@@ -46,15 +63,18 @@ export default function CategoryManager() {
     try {
       if (editing) {
         await api.put(`/api/categories/${editing}`, form);
+        setShowSuccessModal(true);
       } else {
         await api.post("/api/categories", form);
+        setShowSuccessModal(true);
       }
 
       setForm({ name: "" });
       setEditing(null);
       loadCategories();
     } catch (err) {
-      setError("Failed to save category");
+      setErrorMessage(err.response?.data || "Failed to save category. Please try again.");
+      setShowErrorModal(true);
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,19 +87,29 @@ export default function CategoryManager() {
     setEditing(category.id);
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (id) => {
     const cat = categories.find(c => c.id === id);
     if (cat?.isDefault) {
-      alert("Cannot delete default category");
+      setErrorMessage("Cannot delete default category");
+      setShowErrorModal(true);
       return;
     }
-    if (window.confirm("Are you sure? This will affect related expenses and budgets.")) {
-      try {
-        await api.delete(`/api/categories/${id}`);
-        loadCategories();
-      } catch (err) {
-        setError("Failed to delete category");
-      }
+    setCategoryToDelete({ id, name: cat?.name || "this category" });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!categoryToDelete) return;
+    
+    try {
+      await api.delete(`/api/categories/${categoryToDelete.id}`);
+      loadCategories();
+      setShowDeleteModal(false);
+      setCategoryToDelete(null);
+    } catch (err) {
+      setErrorMessage(err.response?.data || "Failed to delete category. Please try again.");
+      setShowErrorModal(true);
+      setShowDeleteModal(false);
     }
   };
 
@@ -152,7 +182,7 @@ export default function CategoryManager() {
                         </button>
                         <button 
                           className="delete-btn"
-                          onClick={() => handleDelete(cat.id)}
+                          onClick={() => handleDeleteClick(cat.id)}
                           title="Delete"
                         >
                           🗑️
@@ -166,6 +196,47 @@ export default function CategoryManager() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCategoryToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Category"
+        message={`Are you sure you want to delete "${categoryToDelete?.name}"? This will affect related expenses and budgets. This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+        type="success"
+      >
+        <p>{editing ? "Category updated successfully!" : "Category created successfully!"}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowSuccessModal(false)}>OK</button>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

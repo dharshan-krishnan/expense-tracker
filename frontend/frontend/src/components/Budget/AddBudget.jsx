@@ -3,12 +3,17 @@ import { useNavigate, Link } from "react-router-dom";
 import { getCategories } from "../../services/categoryService";
 import { getPaymentAccounts } from "../../services/paymentAccountService";
 import { addBudget } from "../../services/budgetService";
+import Modal from "../Shared/Modal";
 import "../Page.css";
 
 export default function AddBudget() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [paymentAccounts, setPaymentAccounts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [budget, setBudget] = useState({
     categoryId: "",
@@ -44,20 +49,75 @@ export default function AddBudget() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
 
-    const cat = categories.find((c) => c.id === budget.categoryId || c.id === String(budget.categoryId));
-    const payload = {
-      category: cat?.name ?? budget.categoryId,
-      amount: Number(budget.amount),
-      month: budget.month,
-      year: Number(budget.year)
-    };
-    if (budget.paymentAccountId) {
-      payload.paymentAccount = { id: budget.paymentAccountId };
+    // Validation
+    if (!budget.categoryId) {
+      setErrorMessage("Please select a category");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
     }
-    await addBudget(payload);
 
-    navigate("/budgets");
+    if (!budget.amount || budget.amount <= 0) {
+      setErrorMessage("Amount must be greater than 0");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (isNaN(Number(budget.amount)) || Number(budget.amount) <= 0) {
+      setErrorMessage("Please enter a valid positive amount");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!budget.month) {
+      setErrorMessage("Please select a month");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!budget.year) {
+      setErrorMessage("Please select a year");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const cat = categories.find((c) => c.id === budget.categoryId || c.id === String(budget.categoryId));
+      if (!cat) {
+        setErrorMessage("Please select a valid category");
+        setShowErrorModal(true);
+        setLoading(false);
+        return;
+      }
+      
+      const payload = {
+        category: cat.name,
+        amount: Number(budget.amount),
+        month: budget.month,
+        year: Number(budget.year)
+      };
+      if (budget.paymentAccountId) {
+        payload.paymentAccount = { id: budget.paymentAccountId };
+      }
+      
+      await addBudget(payload);
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        navigate("/budgets");
+      }, 1500);
+    } catch (err) {
+      setErrorMessage(err.response?.data || "Failed to add budget. Please try again.");
+      setShowErrorModal(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const months = ["January", "February", "March", "April", "May", "June",
@@ -120,9 +180,43 @@ export default function AddBudget() {
               ))}
             </select>
           </div>
-          <button type="submit">Add Budget</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Adding..." : "Add Budget"}
+          </button>
         </form>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/budgets");
+        }}
+        title="Success"
+        type="success"
+      >
+        <p>Budget created successfully!</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => {
+            setShowSuccessModal(false);
+            navigate("/budgets");
+          }}>OK</button>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

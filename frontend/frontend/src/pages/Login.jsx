@@ -9,6 +9,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -86,14 +87,24 @@ export default function Login() {
 
           <div className="form-group">
             <label>Password</label>
-            <input 
-              name="password" 
-              type="password" 
-              placeholder="••••••••" 
-              value={form.password}
-              onChange={handleChange}
-              required 
-            />
+            <div className="password-input-wrapper">
+              <input 
+                name="password" 
+                type={showPassword ? "text" : "password"} 
+                placeholder="••••••••" 
+                value={form.password}
+                onChange={handleChange}
+                required 
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
           </div>
 
           <button type="submit" disabled={loading}>
@@ -102,7 +113,12 @@ export default function Login() {
         </form>
 
         <div className="auth-footer">
-          Don't have an account? <a href="/signup">Create one</a>
+          <div>
+            Don't have an account? <a href="/signup">Create one</a>
+          </div>
+          <div style={{ marginTop: "12px" }}>
+            <a href="/forgot-password">Forgot Password?</a>
+          </div>
         </div>
       </div>
     </div>

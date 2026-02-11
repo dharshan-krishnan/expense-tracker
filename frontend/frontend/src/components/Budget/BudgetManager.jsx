@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { getPaymentAccounts } from "../../services/paymentAccountService";
+import Modal from "../Shared/Modal";
+import ConfirmModal from "../Shared/ConfirmModal";
 import "../Manager.css";
 
 export default function BudgetManager() {
@@ -11,6 +13,13 @@ export default function BudgetManager() {
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     loadBudgets();
@@ -66,14 +75,50 @@ export default function BudgetManager() {
     setError("");
     setLoading(true);
 
-    if (!form.category || !form.amount || !form.month || !form.year) {
-      setError("All fields are required");
+    // Validation
+    if (!form.category) {
+      setErrorMessage("Please select a category");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.amount || form.amount <= 0) {
+      setErrorMessage("Amount must be greater than 0");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
+      setErrorMessage("Please enter a valid positive amount");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.month) {
+      setErrorMessage("Please select a month");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!form.year) {
+      setErrorMessage("Please select a year");
+      setShowErrorModal(true);
       setLoading(false);
       return;
     }
 
     try {
       const categoryObj = categories.find(c => c.id === form.category || c.id === String(form.category));
+      if (!categoryObj) {
+        setErrorMessage("Please select a valid category");
+        setShowErrorModal(true);
+        setLoading(false);
+        return;
+      }
       const data = {
         category: categoryObj.name,
         amount: parseFloat(form.amount),
@@ -86,15 +131,18 @@ export default function BudgetManager() {
 
       if (editing) {
         await api.put(`/api/budgets/${editing}`, data);
+        setShowSuccessModal(true);
       } else {
         await api.post("/api/budgets", data);
+        setShowSuccessModal(true);
       }
 
       setForm({ category: "", amount: "", month: "", year: "", paymentAccount: "" });
       setEditing(null);
       loadBudgets();
     } catch (err) {
-      setError("Failed to save budget");
+      setErrorMessage(err.response?.data || "Failed to save budget. Please try again.");
+      setShowErrorModal(true);
       console.error(err);
     } finally {
       setLoading(false);
@@ -112,14 +160,24 @@ export default function BudgetManager() {
     setEditing(budget.id);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await api.delete(`/api/budgets/${id}`);
-        loadBudgets();
-      } catch (err) {
-        setError("Failed to delete budget");
-      }
+  const handleDeleteClick = (id) => {
+    const budget = budgets.find(b => b.id === id);
+    setBudgetToDelete({ id, category: budget?.category || "this budget" });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!budgetToDelete) return;
+    
+    try {
+      await api.delete(`/api/budgets/${budgetToDelete.id}`);
+      loadBudgets();
+      setShowDeleteModal(false);
+      setBudgetToDelete(null);
+    } catch (err) {
+      setErrorMessage(err.response?.data || "Failed to delete budget. Please try again.");
+      setShowErrorModal(true);
+      setShowDeleteModal(false);
     }
   };
 
@@ -247,7 +305,7 @@ export default function BudgetManager() {
                     </button>
                     <button 
                       className="delete-btn"
-                      onClick={() => handleDelete(budget.id)}
+                      onClick={() => handleDeleteClick(budget.id)}
                       title="Delete"
                     >
                       🗑️
@@ -259,6 +317,47 @@ export default function BudgetManager() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setBudgetToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Budget"
+        message={`Are you sure you want to delete the budget for "${budgetToDelete?.category}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+        type="success"
+      >
+        <p>{editing ? "Budget updated successfully!" : "Budget created successfully!"}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowSuccessModal(false)}>OK</button>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

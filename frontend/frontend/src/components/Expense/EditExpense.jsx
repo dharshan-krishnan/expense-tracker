@@ -3,11 +3,16 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { getExpenseById, updateExpense } from "../../services/expenseService";
 import { getCategories } from "../../services/categoryService";
 import { getPaymentAccounts, ensurePaymentDefaults } from "../../services/paymentAccountService";
+import Modal from "../Shared/Modal";
 import "../Page.css";
 
 export default function EditExpense() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [paymentAccounts, setPaymentAccounts] = useState([]);
@@ -59,7 +64,7 @@ export default function EditExpense() {
         try {
           res = await ensurePaymentDefaults();
           accounts = res.data || [];
-        } catch (_) {}
+        } catch (_) { }
       }
 
       setPaymentAccounts(accounts);
@@ -99,25 +104,73 @@ export default function EditExpense() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
 
-    const payload = {
-      title: expense.title,
-      amount: expense.amount,
-      date: expense.date,
-      category: { id: expense.categoryId },
-      notes: expense.notes || null
-    };
-
-    if (expense.paymentAccountId) {
-      payload.paymentAccount = { id: expense.paymentAccountId };
+    // Validation
+    if (!expense.title?.trim()) {
+      setErrorMessage("Expense title is required");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
     }
 
-    if (isOthersSelected() && expense.categoryOther?.trim()) {
-      payload.categoryOther = expense.categoryOther.trim();
+    if (!expense.amount || expense.amount <= 0) {
+      setErrorMessage("Amount must be greater than 0");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
     }
 
-    await updateExpense(id, payload);
-    navigate("/expenses");
+    if (isNaN(Number(expense.amount)) || Number(expense.amount) <= 0) {
+      setErrorMessage("Please enter a valid positive amount");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!expense.date) {
+      setErrorMessage("Date is required");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!expense.categoryId) {
+      setErrorMessage("Please select a category");
+      setShowErrorModal(true);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const payload = {
+        title: expense.title.trim(),
+        amount: Number(expense.amount),
+        date: expense.date,
+        category: { id: expense.categoryId },
+        notes: expense.notes?.trim() || null
+      };
+
+      if (expense.paymentAccountId) {
+        payload.paymentAccount = { id: expense.paymentAccountId };
+      }
+
+      if (isOthersSelected() && expense.categoryOther?.trim()) {
+        payload.categoryOther = expense.categoryOther.trim();
+      }
+
+      await updateExpense(id, payload);
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        navigate("/expenses");
+      }, 1500);
+    } catch (err) {
+      setErrorMessage(err.response?.data || "Failed to update expense. Please try again.");
+      setShowErrorModal(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -224,11 +277,45 @@ export default function EditExpense() {
           </div>
 
           <div className="form-buttons-row">
-            <button type="submit">Update Expense</button>
+            <button type="submit" disabled={loading}>
+              {loading ? "Updating..." : "Update Expense"}
+            </button>
             <Link to="/expenses" className="btn-secondary">Cancel</Link>
           </div>
         </form>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/expenses");
+        }}
+        title="Success"
+        type="success"
+      >
+        <p>Expense updated successfully!</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => {
+            setShowSuccessModal(false);
+            navigate("/expenses");
+          }}>OK</button>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

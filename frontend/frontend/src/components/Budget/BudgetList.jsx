@@ -1,18 +1,24 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../services/api";
-import EditBudget from "./EditBudget";
+import ConfirmModal from "../Shared/ConfirmModal";
+import Modal from "../Shared/Modal";
 import "../Page.css";
 
 export default function BudgetList() {
   const [budgets, setBudgets] = useState([]);
-  const [editing, setEditing] = useState(null);
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState({ key: "amount", dir: "desc" });
   const navigate = useNavigate();
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // -----------------------------
   // Memoized load() for ESLint
@@ -43,13 +49,25 @@ export default function BudgetList() {
     }
   }, [month, year]);
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (id) => {
+    const budget = budgets.find(b => b.id === id);
+    setBudgetToDelete({ id, category: budget?.category || "this budget" });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!budgetToDelete) return;
+
     try {
-      await api.delete(`/api/budgets/${id}`);
+      await api.delete(`/api/budgets/${budgetToDelete.id}`);
       load();
+      setShowDeleteModal(false);
+      setBudgetToDelete(null);
     } catch (err) {
       console.error("Delete failed:", err);
-      setError("Failed to delete budget. Please try again.");
+      setErrorMessage(err.response?.data || "Failed to delete budget. Please try again.");
+      setShowErrorModal(true);
+      setShowDeleteModal(false);
     }
   };
 
@@ -164,10 +182,10 @@ export default function BudgetList() {
                     <td>{b.month}</td>
                     <td>{b.year}</td>
                     <td>
-                      <button onClick={() => setEditing(b)} className="edit-btn">
+                      <button onClick={() => navigate(`/budgets/edit/${b.id}`)} className="edit-btn">
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(b.id)} className="delete-btn">
+                      <button onClick={() => handleDeleteClick(b.id)} className="delete-btn">
                         Delete
                       </button>
                     </td>
@@ -179,15 +197,33 @@ export default function BudgetList() {
         )
       )}
 
-      {editing && (
-        <EditBudget
-          data={editing}
-          onClose={() => {
-            setEditing(null);
-            load();
-          }}
-        />
-      )}
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setBudgetToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Budget"
+        message={`Are you sure you want to delete the budget for "${budgetToDelete?.category}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { getExpenses, deleteExpense } from "../../services/expenseService";
+import ConfirmModal from "../Shared/ConfirmModal";
+import Modal from "../Shared/Modal";
 import "../Page.css";
 
 export default function ExpenseList() {
@@ -8,6 +10,12 @@ export default function ExpenseList() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState({ key: "date", dir: "desc" });
+  
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     loadExpenses();
@@ -32,13 +40,25 @@ export default function ExpenseList() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (id) => {
+    const expense = expenses.find(e => e.id === id);
+    setExpenseToDelete({ id, title: expense?.title || "this expense" });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!expenseToDelete) return;
+    
     try {
-      await deleteExpense(id);
+      await deleteExpense(expenseToDelete.id);
       loadExpenses();
+      setShowDeleteModal(false);
+      setExpenseToDelete(null);
     } catch (error) {
       console.error("Delete failed:", error);
-      setError("Failed to delete expense. Please try again.");
+      setErrorMessage(error.response?.data || "Failed to delete expense. Please try again.");
+      setShowErrorModal(true);
+      setShowDeleteModal(false);
     }
   };
 
@@ -126,7 +146,7 @@ export default function ExpenseList() {
                     <Link to={`/expenses/edit/${exp.id}`}>
                       <button className="edit-btn">Edit</button>
                     </Link>
-                    <button className="delete-btn" onClick={() => handleDelete(exp.id)}>Delete</button>
+                    <button className="delete-btn" onClick={() => handleDeleteClick(exp.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -134,6 +154,34 @@ export default function ExpenseList() {
           </table>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setExpenseToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Expense"
+        message={`Are you sure you want to delete "${expenseToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="error"
+      >
+        <p>{errorMessage}</p>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={() => setShowErrorModal(false)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 }
