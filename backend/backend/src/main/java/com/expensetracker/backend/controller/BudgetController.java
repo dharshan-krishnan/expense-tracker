@@ -46,6 +46,11 @@ public class BudgetController {
         return service.filter(getLoggedInUser(), month, year);
     }
 
+    @GetMapping("/{id}")
+    public Budget getById(@PathVariable String id) {
+        return service.getById(id, getLoggedInUser());
+    }
+
     @PutMapping("/{id}")
     public Budget update(@PathVariable String id, @RequestBody Budget budget) {
         budget.setUser(getLoggedInUser());

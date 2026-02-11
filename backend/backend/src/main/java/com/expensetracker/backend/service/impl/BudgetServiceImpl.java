@@ -40,6 +40,19 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
+    public Budget getById(String id, User user) {
+        Budget budget = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Budget not found"));
+        
+        // Verify the budget belongs to the requesting user
+        if (!budget.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access to budget");
+        }
+        
+        return budget;
+    }
+
+    @Override
     public Budget update(String id, Budget updated) {
         Budget b = repo.findById(id).orElseThrow(() -> new RuntimeException("Budget not found"));
         User user = b.getUser();
